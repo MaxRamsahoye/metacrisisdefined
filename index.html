@@ -223,16 +223,22 @@ body {
 .credit a:hover { color: var(--ink); text-decoration-color: var(--ink-soft); }
 .credit a:focus-visible { outline: none; color: var(--ink); text-decoration-color: currentColor; }
 
-/* Domino row: the book-stack bars from maxramsahoye.github.io/max's loading
-   screen, across the middle third of the bottom. The script keeps a bar's length
-   clear at both ends so the end bar can fall flat either way. */
+/* Loading screen: the book-stack bars from maxramsahoye.github.io/max's
+   loading screen fall once, left to right, then the screen fades away. */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  transition: opacity .6s ease, visibility 0s linear .6s;
+}
+.loader.is-done { opacity: 0; visibility: hidden; }
 .dominoes {
-  position: absolute;
-  right: calc(100% / 3);
-  bottom: 1.5rem;
-  left: calc(100% / 3);
+  position: relative;
+  width: min(440px, calc(100vw - 2rem));
   height: 50px;
-  pointer-events: none;
 }
 .domino {
   position: absolute;
@@ -241,10 +247,8 @@ body {
   height: 50px;
   border-radius: 2px;
   background: var(--ink);
-  transform-origin: 0 100%;
-  transition: background-color .4s ease;
+  transform-origin: 100% 100%;
 }
-.dominoes.is-rising .domino { transition: transform .5s cubic-bezier(.3, 0, .2, 1), background-color .4s ease; }
 main {
   grid-column: 2;
   display: flex;
@@ -458,15 +462,14 @@ h1 {
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
     row-gap: 2.75rem;
-    padding: 7.5rem 1.25rem 6.5rem;
+    padding: 7.5rem 1.25rem 3rem;
   }
   .masthead { left: 1.25rem; }
-  /* A third of a phone is too narrow for a chain, so the row keeps two-thirds. */
-  .dominoes { left: calc(100% / 6); right: calc(100% / 6); }
-  main { grid-column: 1; grid-row: 2; }
+  /* On phones the definition comes first and the menu strip follows it. */
+  main { grid-column: 1; grid-row: 1; }
   .thinkers {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
     justify-self: center;
     align-self: auto;
     position: static;
@@ -509,6 +512,7 @@ h1 {
 </style>
 </head>
 <body>
+<div class="loader" id="loader" aria-hidden="true"><div class="dominoes" id="dominoes"></div></div>
 <button class="info-toggle" id="info-toggle" type="button" aria-label="About this project" aria-pressed="false" title="About this project">
   <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40"/><circle class="fill" cx="50" cy="31" r="4.5"/><line x1="50" y1="44" x2="50" y2="72"/></svg>
 </button>
@@ -534,7 +538,6 @@ h1 {
     <p class="definition" id="definition"><strong><a href="https://maxramsahoye.github.io/civilisationtheory/#metacrisis" target="_blank" rel="noopener">The Metacrisis</a></strong> is (a conceptual frame for capturing) <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current <strong><a href="https://globalmaximum.substack.com/p/the-life-world-system-on-the-universal" target="_blank" rel="noopener"><span class="nowrap">life-world-system</span></a></strong>, which is now emergently posing an existential risk to&nbsp;humanity.</p>
     <p class="source" id="source"></p>
   </main>
-  <div class="dominoes" id="dominoes" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -841,6 +844,9 @@ var THINKERS = [
       panel.classList.toggle('is-quote', i !== home);
       if (e.width) layout.style.setProperty('--measure', e.width);
       else layout.style.removeProperty('--measure');
+      // On phones the menu sits below the definition: after a pick from it,
+      // bring the start of the new definition back into view.
+      if (!instant && panel.getBoundingClientRect().top < 0) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       panel.classList.remove('is-swapping');
     }
     clearTimeout(swapTimer);
@@ -909,16 +915,16 @@ var THINKERS = [
   show(location.hash === '#about' ? about : home, true);
 })();
 
-// Domino row: book-shaped bars that topple in a chain. Each bar has its own
-// fall direction, falls under gravity about its bottom corner and comes to rest
-// against its neighbour's actual outline, so they never pass through one another.
-// Sequence: left to right, right to left, both ends meeting in the middle, repeat.
+// Loading screen: book-shaped bars topple once in a chain, left to right, then
+// the screen fades away. Each bar falls under gravity about its bottom corner and
+// comes to rest against its neighbour's actual outline, so they never pass
+// through one another.
 (function(){
   var row = document.getElementById('dominoes');
   var W = 10, H = 50, P = 30, K = 60, PUSH = 0.8, STEP = 1 / 120;
-  var SEQUENCE = ['ltr', 'rtl', 'meet'];
+  var loader = document.getElementById('loader');
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
-  var bars = [], frame = 0, turn = 0, order = 0;
+  var bars = [], frame = 0, order = 0, finished = false;
 
   // Corners of bar b leaning by angle a: left-fallers pivot on their
   // bottom-left corner, right-fallers on their bottom-right.
@@ -978,77 +984,52 @@ var THINKERS = [
     return moving;
   }
   function render(){
-    bars.forEach(function(b){
-      b.el.style.transformOrigin = b.d > 0 ? '100% 100%' : '0 100%';
-      b.el.style.transform = 'rotate(' + (b.d > 0 ? b.t : -b.t) + 'rad)';
-    });
+    bars.forEach(function(b){ b.el.style.transform = 'rotate(' + b.t + 'rad)'; });
   }
-  function reset(){ bars.forEach(function(b){ b.t = 0; b.w = 0; b.active = false; b.order = -1; }); }
 
-  var timers = [];
-  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
-  function stop(){ cancelAnimationFrame(frame); timers.forEach(clearTimeout); timers = []; }
+  // Fade the screen away once (the chain has settled, or it was skipped).
+  function finish(){
+    if (finished) return;
+    finished = true;
+    cancelAnimationFrame(frame);
+    loader.classList.add('is-done');
+    setTimeout(function(){ loader.remove(); }, 700);
+  }
 
-  // Bars are spaced symmetrically with a bar's length clear at each end, so
-  // the end bar can fall flat in either direction.
+  // Bars are spaced evenly with a bar's length clear at the right end, so the
+  // last bar can fall flat.
   function build(){
-    stop();
-    row.textContent = '';
-    row.classList.remove('is-rising');
-    turn = 0;
     var width = row.clientWidth;
-    var n = innerWidth > 900 ? 12 : Math.max(2, Math.floor((width - W - 2 * H) / P) + 1);
-    var margin = (width - W - (n - 1) * P) / 2;
-    bars = [];
+    var n = Math.min(12, Math.max(2, Math.floor((width - W - H) / P) + 1));
+    var margin = (width - W - H - (n - 1) * P) / 2;
     for (var k = 0; k < n; k++){
       var x = margin + k * P, el = document.createElement('span');
       el.className = 'domino';
       el.style.left = x + 'px';
       row.appendChild(el);
-      bars.push({ el: el, x: x, d: -1, t: 0, w: 0, active: false, order: -1 });
+      bars.push({ el: el, x: x, d: 1, t: 0, w: 0, active: false, order: -1 });
     }
     render();
-    if (!(reduceMotion && reduceMotion.matches)) later(fall, 1200);
+    if (reduceMotion && reduceMotion.matches) return setTimeout(finish, 400);
+    setTimeout(fall, 350);
   }
 
-  function kick(j){ bars[j].active = true; bars[j].w = 1.2; bars[j].order = order++; }
   function fall(){
-    var mode = SEQUENCE[turn % SEQUENCE.length], N = bars.length, half = Math.floor(N / 2);
-    reset(); order = 0;
-    bars.forEach(function(b, j){
-      b.d = mode === 'ltr' ? 1 : mode === 'rtl' ? -1 :
-            j < half ? 1 : (N % 2 && j === half ? 0 : -1);   // an odd middle bar is hit from both sides and stays up
-    });
-    render();
-    if (mode === 'ltr') kick(0);
-    else if (mode === 'rtl') kick(N - 1);
-    else { kick(0); kick(N - 1); }
+    bars[0].active = true; bars[0].w = 1.2; bars[0].order = order++;
     var last = performance.now(), acc = 0, calm = 0;
     function tick(now){
       acc += Math.min((now - last) / 1000, 1 / 20); last = now;
       while (acc >= STEP){ calm = step() ? 0 : calm + 1; acc -= STEP; }
       render();
-      if (calm < 30) frame = requestAnimationFrame(tick); else later(rise, 1250);
+      if (calm < 30) frame = requestAnimationFrame(tick); else setTimeout(finish, 350);
     }
     frame = requestAnimationFrame(tick);
   }
-  function rise(){
-    row.classList.add('is-rising');
-    // The last to fall rises first.
-    var maxOrder = Math.max.apply(null, bars.map(function(b){ return b.order; }));
-    bars.forEach(function(b){ b.el.style.transitionDelay = (b.order < 0 ? 0 : (maxOrder - b.order) * 25) + 'ms'; });
-    bars.forEach(function(b){ b.t = 0; b.w = 0; b.active = false; });
-    render();
-    later(function(){
-      row.classList.remove('is-rising');
-      bars.forEach(function(b){ b.el.style.transitionDelay = ''; });
-      turn++;
-      later(fall, 1000);
-    }, 500 + bars.length * 25 + 100);
-  }
 
-  var resizeTimer;
-  window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(build, 150); });
+  // A click or key skips it; it never stays up longer than a few seconds.
+  loader.addEventListener('click', finish);
+  document.addEventListener('keydown', finish, { once: true });
+  setTimeout(finish, 6000);
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(build);
 })();
 </script>
