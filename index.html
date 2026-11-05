@@ -111,10 +111,16 @@ main {
 }
 
 /* Thinkers menu: names, each joined by a short rule to one vertical line. */
+/* Held at the vertical centre of the screen, so it stays put while the
+   page scrolls and when a longer or shorter definition loads. */
 .thinkers {
   grid-column: 1;
   grid-row: 1;
   justify-self: start;
+  align-self: start;
+  position: sticky;
+  top: 50vh;
+  transform: translateY(-50%);
   padding: 0 2.5rem 0 1rem;
 }
 .thinkers ol {
@@ -232,6 +238,9 @@ h1 {
     grid-column: 1;
     grid-row: 1;
     justify-self: center;
+    align-self: auto;
+    position: static;
+    transform: none;
     max-width: 100%;
     padding: 0;
     overflow-x: auto;
@@ -457,6 +466,12 @@ var THINKERS = [
     quote: true,
     text: 'There are a large number of crises drawing increasing amounts of public attention, such as the ecological, economic, immigration, geopolitical, and energy crises. But there is also <strong>an invisible crisis unfolding within our own minds and cultures</strong> that is getting much less attention. <strong>This is the metacrisis, which has to do with how humans understand themselves and the world. It is a generalised educational crisis involving a set of related psychological dynamics;</strong> systems and societies are in trouble, but it is the psyche—the human dimension—that is in the direst of straits.',
     source: { title: 'Education is the Metacrisis', italic: false, url: 'https://systems-souls-society.com/education-is-the-metacrisis/', after: ', <i>Perspectiva</i> (2022)' }
+  },
+  {
+    name: 'Iain McGilchrist',
+    quote: true,
+    text: 'I believe it is the left hemispheric view of the world, intellectually jejune and morally bankrupt as it is, that has resulted in what has been called the metacrisis: not just the odd crisis here and there, but [extensive list]… <strong>These aspects of the so-called metacrisis have a multitude of proximal causes: economic, political, social, psychological, technological, and so on. But beneath and beyond that, each manifests, within those realms, aspects of the left hemisphere’s dysfunctional view of the world.</strong> The very thing that originates the problem also militates against seeing the problem. Seeing the wider picture—a necessary prelude to understanding—is now increasingly disfavoured, and as a consequence the crises I have referred to are often seen as isolated pieces of bad luck. But they are not: they could have been, and were by some, predicted. <strong>The metacrisis is the predictable outcome of a complete failure to understand what a human being is, what the world is, and what the one has to do with the other.</strong> And all this is the sort of thing the right hemisphere is far better able to understand than the left.',
+    source: { title: 'A Revolution in Thought? How Hemisphere Theory Helps us Understand the Metacrisis', italic: false, url: 'https://channelmcgilchrist.com/a-revolution-in-thought-how-hemisphere-theory-helps-us-understand-the-metacrisis/', after: ', <i>Channel McGilchrist</i> (2024)' }
   }
 ];
 
