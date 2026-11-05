@@ -38,6 +38,13 @@ function setFavicon(theme){
 }
 @font-face {
   font-family: "ET Bembo";
+  src: url("fonts/et-book/et-book-semi-bold-old-style-figures.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "ET Bembo";
   src: url("fonts/et-book/et-book-bold-line-figures.woff") format("woff");
   font-weight: 700;
   font-style: normal;
@@ -181,8 +188,9 @@ main {
 
 .supertitle {
   min-height: 1.5em;
-  margin: 0 0 .9rem;
+  margin: 0 0 1.5rem;
   font-size: 1rem;
+  font-weight: 600;
   line-height: 1.5;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -462,6 +470,13 @@ var THINKERS = [
     source: { title: '/metacrisisdefined', url: 'https://maxramsahoye.github.io/metacrisisdefined/' }
   },
   {
+    name: 'Jonah Wilberg',
+    quote: true,
+    text: '‘Metacrisis’ has emerged in recent years as a new concept for understanding 21st century global challenges. Probably its most well-known proponent is Daniel Schmachtenberger… On his way of presenting it, the concept refers to the existence of structural root causes or ‘generator functions’ of the many catastrophic and existential risks that humanity currently faces. While this framing may be the most widely known, there’s a wide range of other perspectives in recent metacrisis discussions – and this has led to confusion about what is meant by the term. In what follows I’ll explore the territory, tracing the history of the term’s adoption, and mapping boundaries and some open questions. I’ll suggest that recent metacrisis framings fall into two main kinds, depending on whether they emphasise ‘inner’ psychological or cultural factors or ‘outer’ economic or structural dynamics. (I’ll also consider ways in which these two approaches complement each other, rather than being in conflict.)',
+    width: '56rem',
+    source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
+  },
+  {
     name: 'Daniel Schmachtenberger',
     quote: true,
     text: 'Our civilization has never been more vast, complicated, obligate, and fragile. This systemic fragility is exacerbated by technological change, geopolitical instability, an ecological crisis, and a reliance on global economic supply chains (among other factors). <strong>These interconnected problems—and the common underlying dynamics that give rise to them—are known collectively as the metacrisis.</strong> The concept of the metacrisis may be seen as a unified theory for making sense of the world as it is now.',
@@ -516,13 +531,6 @@ var THINKERS = [
     quote: true,
     text: 'While this concept is partly related to some pre-existing terminology (e.g., polycrisis, meaning crisis), it is also different and original. To me, the significance of the theory is its introduction of a coherent frame by which we can better understand root causes for the complex array of global catastrophic risks and the prevailing crises that humanity currently faces. Critically, the Metacrisis theory also calls to our attention a staggering hidden premonition: our civilization structure must drastically change, if we have any hope for the flourishing of life on Earth. To make this change we need to stop searching for bad guys and start stopping bad games.',
     source: { title: 'Introduction to the Metacrisis', italic: false, url: 'https://sites.google.com/view/intro-to-the-metacrisis', after: ', <i>The Stoa</i> (2023)' }
-  },
-  {
-    name: 'Jonah Wilberg',
-    quote: true,
-    text: '‘Metacrisis’ has emerged in recent years as a new concept for understanding 21st century global challenges. Probably its most well-known proponent is Daniel Schmachtenberger… On his way of presenting it, the concept refers to the existence of structural root causes or ‘generator functions’ of the many catastrophic and existential risks that humanity currently faces. While this framing may be the most widely known, there’s a wide range of other perspectives in recent metacrisis discussions – and this has led to confusion about what is meant by the term. In what follows I’ll explore the territory, tracing the history of the term’s adoption, and mapping boundaries and some open questions. I’ll suggest that recent metacrisis framings fall into two main kinds, depending on whether they emphasise ‘inner’ psychological or cultural factors or ‘outer’ economic or structural dynamics. (I’ll also consider ways in which these two approaches complement each other, rather than being in conflict.)',
-    width: '56rem',
-    source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
   }
 ];
 
