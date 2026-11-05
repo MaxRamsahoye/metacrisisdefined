@@ -151,19 +151,18 @@ body {
 .credit a:focus-visible { outline: none; color: var(--ink); text-decoration-color: currentColor; }
 
 /* Domino row: the book-stack bars from maxramsahoye.github.io/max's loading
-   screen, along the bottom from the right corner to two-thirds across. */
+   screen, across the bottom-right third. The script keeps a bar's length
+   clear at both ends so the last bar can fall flat either way; mirroring the
+   row turns a right-to-left fall into a left-to-right one. */
 .dominoes {
   position: absolute;
-  right: 1.5rem;
+  right: 0;
   bottom: 1.5rem;
-  left: calc(100% / 3);
+  left: calc(200% / 3);
   height: 50px;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
+  pointer-events: none;
 }
-.dominoes:focus-visible { outline: 1px solid var(--rule); outline-offset: 6px; }
+.dominoes.is-mirrored { transform: scaleX(-1); }
 .domino {
   position: absolute;
   bottom: 0;
@@ -341,7 +340,8 @@ h1 {
   }
   .credit { left: 1.25rem; }
   /* On narrow screens the credit takes the bottom line, so the row sits above it. */
-  .dominoes { right: 1.25rem; bottom: 4.5rem; }
+  /* A third of a phone is too narrow for a chain, so the row keeps two-thirds. */
+  .dominoes { left: calc(100% / 3); bottom: 4.5rem; }
   main { grid-column: 1; grid-row: 2; }
   .thinkers {
     grid-column: 1;
@@ -402,7 +402,7 @@ h1 {
     <p class="source" id="source"></p>
   </main>
   <p class="credit">A project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
-  <button class="dominoes" id="dominoes" type="button" aria-label="Topple the dominoes again"></button>
+  <div class="dominoes" id="dominoes" aria-hidden="true"></div>
 </div>
 
 <script>
@@ -718,14 +718,14 @@ var THINKERS = [
   show(0, true);
 })();
 
-// Domino row: book-shaped bars that topple right to left. Each bar falls under
-// gravity about its bottom-left corner and comes to rest against its left
-// neighbour's actual outline, so they never pass through one another.
+// Domino row: book-shaped bars that topple in a chain, alternating direction.
+// Each bar falls under gravity about its bottom corner and comes to rest
+// against its neighbour's actual outline, so they never pass through one another.
 (function(){
   var row = document.getElementById('dominoes');
   var W = 10, H = 50, P = 30, K = 60, PUSH = 0.8, STEP = 1 / 120;
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
-  var bars = [], frame = 0, played = false, busy = false;
+  var bars = [], frame = 0;
 
   function corners(x0, a){
     var c = Math.cos(a), s = Math.sin(a);
@@ -773,62 +773,62 @@ var THINKERS = [
   }
   function render(){ bars.forEach(function(b){ b.el.style.transform = 'rotate(' + (-b.t) + 'rad)'; }); }
   function reset(){ bars.forEach(function(b){ b.t = 0; b.w = 0; b.active = false; }); }
-  function kick(){ reset(); bars[0].active = true; bars[0].w = 1.2; played = true; }
 
+  var timers = [];
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+  function stop(){ cancelAnimationFrame(frame); timers.forEach(clearTimeout); timers = []; }
+
+  // Bars are spaced symmetrically with a bar's length clear at each end, so the
+  // upright row looks identical mirrored or not and the direction can flip
+  // unseen while every bar is standing.
   function build(){
-    cancelAnimationFrame(frame); busy = false;
+    stop();
     row.textContent = '';
+    row.classList.remove('is-mirrored', 'is-rising');
     var width = row.clientWidth;
-    var n = Math.max(2, Math.floor((width - W - H) / P) + 1);
+    var n = Math.max(2, Math.floor((width - W - 2 * H) / P) + 1);
+    var margin = (width - W - (n - 1) * P) / 2;
     bars = [];
     for (var k = 0; k < n; k++){
-      var el = document.createElement('span');
+      var x = width - margin - W - k * P, el = document.createElement('span');
       el.className = 'domino';
-      el.style.left = (width - W - k * P) + 'px';
+      el.style.left = x + 'px';
       row.appendChild(el);
-      bars.push({ el: el, x: width - W - k * P, t: 0, w: 0, active: false });
+      bars.push({ el: el, x: x, t: 0, w: 0, active: false });
     }
-    if (played) settleNow(); else render();
-  }
-  function settleNow(){
-    kick();
-    var calm = 0;
-    for (var s = 0; s < 4000 && calm < 30; s++) calm = step() ? 0 : calm + 1;
     render();
+    if (!(reduceMotion && reduceMotion.matches)) later(fall, 1200);
   }
-  function run(){
-    kick(); busy = true;
+
+  // Cycle: fall, hold, stand back up, flip direction, fall again.
+  function fall(){
+    reset();
+    bars[0].active = true; bars[0].w = 1.2;
     var last = performance.now(), acc = 0, calm = 0;
     function tick(now){
       acc += Math.min((now - last) / 1000, 1 / 20); last = now;
       while (acc >= STEP){ calm = step() ? 0 : calm + 1; acc -= STEP; }
       render();
-      if (calm < 30) frame = requestAnimationFrame(tick); else busy = false;
+      if (calm < 30) frame = requestAnimationFrame(tick); else later(rise, 2500);
     }
     frame = requestAnimationFrame(tick);
   }
-  function replay(){
-    if (busy) return;
-    if (reduceMotion && reduceMotion.matches){ if (bars[0].t > 0){ reset(); render(); played = false; } else settleNow(); return; }
-    busy = true;
+  function rise(){
     row.classList.add('is-rising');
-    // Stand back up in reverse order: the last to fall rises first.
+    // The last to fall rises first.
     bars.forEach(function(b, i){ b.el.style.transitionDelay = ((bars.length - 1 - i) * 25) + 'ms'; });
     reset(); render();
-    setTimeout(function(){
+    later(function(){
       row.classList.remove('is-rising');
       bars.forEach(function(b){ b.el.style.transitionDelay = ''; });
-      run();
-    }, 500 + bars.length * 25 + 250);
+      row.classList.toggle('is-mirrored');
+      later(fall, 1000);
+    }, 500 + bars.length * 25 + 100);
   }
 
-  row.addEventListener('click', replay);
   var resizeTimer;
   window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(build, 150); });
-  build();
-  if (!(reduceMotion && reduceMotion.matches)){
-    (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ setTimeout(function(){ if (!played) run(); }, 1200); });
-  }
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(build);
 })();
 </script>
 </body>
