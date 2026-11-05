@@ -427,7 +427,7 @@ h1 {
   <main id="definition-panel">
     <p class="supertitle" id="supertitle" aria-live="polite">Max Ramsahoye</p>
     <h1>The Metacrisis</h1>
-    <p class="definition" id="definition">The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
+    <p class="definition" id="definition"><a href="https://maxramsahoye.github.io/civilisationtheory/#metacrisis" target="_blank" rel="noopener">The Metacrisis</a> is a conceptual frame for capturing <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
     <p class="source" id="source"></p>
   </main>
   <p class="credit">A project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
@@ -597,7 +597,7 @@ var THINKERS = [
   {
     name: 'Max Ramsahoye',
     group: 'The Holists',
-    text: 'The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to humanity.',
+    text: '<a href="https://maxramsahoye.github.io/civilisationtheory/#metacrisis" target="_blank" rel="noopener">The Metacrisis</a> is a conceptual frame for capturing <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to humanity.',
     source: { title: '/metacrisisdefined', url: 'https://maxramsahoye.github.io/metacrisisdefined/' }
   },
   {
@@ -849,7 +849,7 @@ var THINKERS = [
       acc += Math.min((now - last) / 1000, 1 / 20); last = now;
       while (acc >= STEP){ calm = step() ? 0 : calm + 1; acc -= STEP; }
       render();
-      if (calm < 30) frame = requestAnimationFrame(tick); else later(rise, 2500);
+      if (calm < 30) frame = requestAnimationFrame(tick); else later(rise, 1250);
     }
     frame = requestAnimationFrame(tick);
   }
