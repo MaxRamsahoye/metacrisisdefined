@@ -100,15 +100,19 @@ main {
 h1 {
   margin: 0;
   font-weight: 400;
-  font-size: clamp(2.75rem, 8vw, 4.5rem);
-  line-height: 1.1;
+  font-size: clamp(3.25rem, 10vw, 6rem);
+  line-height: 1.05;
   letter-spacing: .01em;
 }
 .definition {
-  max-width: 44rem;
+  max-width: 50rem;
   margin: 2rem 0 0;
-  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
-  line-height: 1.6;
+  font-size: clamp(1.3rem, 2.9vw, 1.75rem);
+  line-height: 1.42;
+  text-wrap: pretty;
+}
+@media (max-width: 1000px) {
+  .definition { text-wrap: balance; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -124,7 +128,7 @@ h1 {
 
 <main>
   <h1>The Metacrisis</h1>
-  <p class="definition">The Metacrisis is a conceptual frame for capturing civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to humanity.</p>
+  <p class="definition">The Metacrisis is a conceptual frame for capturing civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
 </main>
 
 <script>
