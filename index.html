@@ -423,11 +423,14 @@ h1 {
   line-height: 1.42;
   text-wrap: pretty;
 }
-/* ET Bembo has no bold italic. The browser's faux bold blurs on phones, so
-   italics inside bold passages are thickened with a thin outline instead. */
+/* ET Bembo's bold is light beside its roman, so bold passages are thickened
+   with a fine outline to stand clearly apart. It has no bold italic, and the
+   browser's faux bold blurs on phones, so italics inside bold passages take a
+   heavier outline instead. */
+.definition strong { -webkit-text-stroke: .02em currentColor; }
 .definition strong i {
   font-synthesis: none;
-  -webkit-text-stroke: .028em currentColor;
+  -webkit-text-stroke: .045em currentColor;
 }
 .definition a {
   color: inherit;
