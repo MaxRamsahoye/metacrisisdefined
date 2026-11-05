@@ -251,6 +251,29 @@ main {
   text-decoration-thickness: 1px;
   text-underline-offset: .3em;
 }
+/* Group label: small letter-spaced capitals whose rule crosses the spine,
+   like a chapter mark, so it can't be mistaken for a name's tick. */
+.thinker-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .75rem;
+  margin: .9rem -.6rem 0 0;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.thinker-group::after {
+  content: "";
+  flex: none;
+  width: calc(2.5rem + .6rem);
+  height: 1px;
+  background: var(--ink);
+}
 
 .supertitle {
   min-height: 1.5em;
@@ -330,7 +353,7 @@ h1 {
     margin-block: 0;
     display: block;
     max-width: 100%;
-    padding: 0;
+    padding: 0 0 .7rem;
     overflow-x: auto;
   }
   .thinkers ol {
@@ -339,6 +362,8 @@ h1 {
     padding: 0 1.25rem;
     border-right: 0;
     border-bottom: 1px solid var(--rule);
+    width: max-content;
+    min-width: 100%;
   }
   .thinker {
     flex-direction: column;
@@ -349,6 +374,8 @@ h1 {
   .thinker::after { width: 1px; height: 1.4rem; transform: scaleY(.5); transform-origin: center bottom; }
   .thinker:hover::after { transform: scaleY(.7); }
   .thinker[aria-pressed="true"]::after { transform: scaleY(1); }
+  .thinker-group { flex-direction: column; gap: .5rem; margin: 0 0 -.6rem; align-self: flex-end; }
+  .thinker-group::after { width: 1px; height: calc(1.4rem + .6rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -535,7 +562,8 @@ var Piano = (function(){
 // HTML; `quote: true` wraps it in ornamental quotation marks; optional
 // `source` adds a "from <title>" line: the linked title is italic unless
 // `italic: false`, and `after` is HTML shown after the link. Optional
-// `width` overrides the quote box width (default 50rem).
+// `width` overrides the quote box width (default 50rem). `group` puts a
+// section label in the menu above that thinker.
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
@@ -550,19 +578,21 @@ var THINKERS = [
     source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
   },
   {
-    name: 'Daniel Schmachtenberger',
-    quote: true,
-    text: 'Our civilization has never been more vast, complicated, obligate, and fragile. This systemic fragility is exacerbated by technological change, geopolitical instability, an ecological crisis, and a reliance on global economic supply chains (among other factors). <strong>These interconnected problems—and the common underlying dynamics that give rise to them—are known collectively as the metacrisis.</strong> The concept of the metacrisis may be seen as a unified theory for making sense of the world as it is now.',
-    source: { title: 'The Consilience Project', url: 'https://consilienceproject.org/about-the-project/' }
-  },
-  {
     name: 'Terry Patten',
     quote: true,
     text: '(The meta-crisis is) a single phenomenon. We may be thinking of it as an ecological crisis; we may be thinking of it as a psychological or spiritual crisis; we may be thinking of it as a cultural crisis and a breakdown of community, family, et cetera; we may be thinking of it as a crisis of government, economics, and finance. And: <strong>it is all these things, but it’s not reducible to any one of them. That’s why it is a meta-crisis.</strong>',
     source: { title: 'Confronting The Meta-Crisis', url: 'https://youtu.be/jHxTvvPZUuI' }
   },
   {
+    name: 'Daniel Schmachtenberger',
+    group: 'The Structuralists',
+    quote: true,
+    text: 'Our civilization has never been more vast, complicated, obligate, and fragile. This systemic fragility is exacerbated by technological change, geopolitical instability, an ecological crisis, and a reliance on global economic supply chains (among other factors). <strong>These interconnected problems—and the common underlying dynamics that give rise to them—are known collectively as the metacrisis.</strong> The concept of the metacrisis may be seen as a unified theory for making sense of the world as it is now.',
+    source: { title: 'The Consilience Project', url: 'https://consilienceproject.org/about-the-project/' }
+  },
+  {
     name: 'Zak Stein',
+    group: 'The Culturalists',
     quote: true,
     text: 'There are a large number of crises drawing increasing amounts of public attention, such as the ecological, economic, immigration, geopolitical, and energy crises. But there is also <strong>an invisible crisis unfolding within our own minds and cultures</strong> that is getting much less attention. <strong>This is the metacrisis, which has to do with how humans understand themselves and the world. It is a generalised educational crisis involving a set of related psychological dynamics;</strong> systems and societies are in trouble, but it is the psyche—the human dimension—that is in the direst of straits.',
     source: { title: 'Education is the Metacrisis', italic: false, url: 'https://systems-souls-society.com/education-is-the-metacrisis/', after: ', <i>Perspectiva</i> (2022)' }
@@ -663,6 +693,12 @@ var THINKERS = [
   }
 
   THINKERS.forEach(function(t, i){
+    if (t.group){
+      var label = document.createElement('li');
+      label.className = 'thinker-group';
+      label.textContent = t.group;
+      list.appendChild(label);
+    }
     var li = document.createElement('li');
     var b = document.createElement('button');
     b.type = 'button';
