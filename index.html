@@ -117,7 +117,7 @@ body {
   transition: background-color .4s ease, color .4s ease;
 }
 
-.theme-toggle {
+.theme-toggle, .info-toggle {
   position: fixed;
   top: 1.25rem;
   right: 1.25rem;
@@ -134,10 +134,12 @@ body {
   cursor: var(--cursor-link);
   transition: color .2s ease;
 }
-.theme-toggle:hover { color: var(--ink); }
-.theme-toggle:focus-visible { outline: 2px solid var(--ink-soft); outline-offset: 3px; }
+.theme-toggle:hover, .info-toggle:hover, .info-toggle[aria-pressed="true"] { color: var(--ink); }
+.theme-toggle:focus-visible, .info-toggle:focus-visible { outline: 2px solid var(--ink-soft); outline-offset: 3px; }
+/* The info button sits one button's width to the left of the theme toggle. */
+.info-toggle { right: 3.75rem; }
 /* The Civilisational Map's icons: hairline strokes that stay 1.4px at any size. */
-.theme-toggle svg {
+.theme-toggle svg, .info-toggle svg {
   display: none;
   width: 1.15rem;
   height: 1.15rem;
@@ -147,8 +149,9 @@ body {
   stroke-linejoin: miter;
   overflow: visible;
 }
-.theme-toggle svg * { vector-effect: non-scaling-stroke; }
-.theme-toggle .fill { fill: currentColor; stroke: none; }
+.info-toggle svg { display: block; }
+.theme-toggle svg *, .info-toggle svg * { vector-effect: non-scaling-stroke; }
+.theme-toggle .fill, .info-toggle .fill { fill: currentColor; stroke: none; }
 :root[data-theme="light"] .theme-toggle .i-light,
 :root[data-theme="dark"] .theme-toggle .i-dark,
 :root[data-theme="sepia"] .theme-toggle .i-sepia,
@@ -474,11 +477,14 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body, .theme-toggle, .thinker, .thinker::after, .supertitle, .definition, .source, .source a { transition: none; }
+  body, .theme-toggle, .info-toggle, .thinker, .thinker::after, .supertitle, .definition, .source, .source a { transition: none; }
 }
 </style>
 </head>
 <body>
+<button class="info-toggle" id="info-toggle" type="button" aria-label="About this project" aria-pressed="false" title="About this project">
+  <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="40"/><circle class="fill" cx="50" cy="31" r="4.5"/><line x1="50" y1="44" x2="50" y2="72"/></svg>
+</button>
 <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Change theme (black, white, sepia, blue)" aria-keyshortcuts="T" title="Change theme (T)">
   <svg class="i-light" viewBox="-3.7 -3.7 107.3 107.3" aria-hidden="true"><circle cx="50" cy="50" r="18"/><line x1="81.0" y1="50.0" x2="94.0" y2="50.0"/><line x1="71.9" y1="71.9" x2="81.1" y2="81.1"/><line x1="50.0" y1="81.0" x2="50.0" y2="94.0"/><line x1="28.1" y1="71.9" x2="18.9" y2="81.1"/><line x1="19.0" y1="50.0" x2="6.0" y2="50.0"/><line x1="28.1" y1="28.1" x2="18.9" y2="18.9"/><line x1="50.0" y1="19.0" x2="50.0" y2="6.0"/><line x1="71.9" y1="28.1" x2="81.1" y2="18.9"/></svg>
   <svg class="i-dark" viewBox="-5.4 2.6 102.9 102.9" aria-hidden="true"><path class="fill" d="M40.3 18.4 A36 36 0 1 0 81.6 59.7 A30 30 0 0 1 40.3 18.4 Z"/></svg>
@@ -488,7 +494,7 @@ h1 {
 
 <header class="masthead">
   <a class="wordmark" href="./">/metacrisisdefined</a>
-  <p class="credit">a project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
+  <p class="credit"><a href="#about" id="about-link">a project</a> by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
 </header>
 
 <div class="layout">
@@ -679,6 +685,14 @@ var GROUPS = {
   }
 };
 
+// The project's own entry, opened from the i button and the masthead's
+// "a project" link.
+var ABOUT = {
+  name: 'About this project',
+  width: '50rem',
+  text: '<i>/metacrisisdefined</i> gathers <strong>definitions of the metacrisis from the thinkers who have shaped the concept</strong>, so that they can be read side by side. The term is used in many ways, and its meaning is still contested. Placed together, the definitions show where they converge and where they part: some trace the metacrisis to the <i>outer</i> structures of civilisation, some to its <i>inner</i> life, and some hold the two together. Select a name to read a definition in its author’s own words, with a link to its source, or a group to read what its thinkers share.'
+};
+
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
@@ -851,11 +865,22 @@ var THINKERS = [
     names.appendChild(li);
   });
 
+  // The project's entry: the i button toggles it; "a project" opens it.
+  var info = document.getElementById('info-toggle');
+  var about = entries.length;
+  entries.push(ABOUT);
+  buttons.push(info);
+  info.addEventListener('click', function(){ show(current === about ? home : about); });
+  document.getElementById('about-link').addEventListener('click', function(e){
+    e.preventDefault();
+    if (current !== about) show(about);
+  });
+
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && current !== home) show(home);
   });
 
-  show(home, true);
+  show(location.hash === '#about' ? about : home, true);
 })();
 
 // Domino row: book-shaped bars that topple in a chain. Each bar has its own
