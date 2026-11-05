@@ -333,26 +333,22 @@ main {
   text-decoration-thickness: 1px;
   text-underline-offset: .3em;
 }
-/* Section label: italic, at the head of its section, with a rule that
-   meets the vertical line exactly as the names' ticks do. */
-.thinker-group {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: .75rem;
-  margin: 0;
-  font-size: 1.05rem;
+/* Section label: italic, at the head of its section, with a full-length
+   rule that meets the vertical line exactly as the names' ticks do. It opens
+   the group's own entry; selected, it thickens with a fine outline (ET Bembo
+   has no bold italic) and is underlined like a name. */
+.thinker.thinker-group {
+  padding: 0;
   font-style: italic;
-  line-height: 1.3;
-  white-space: nowrap;
-  color: var(--ink);
+  font-synthesis: none;
 }
-.thinker-group::after {
-  content: "";
-  flex: none;
-  width: 2.5rem;
-  height: 1px;
-  background: var(--ink);
+.thinker-group::after,
+.thinker-group:hover::after,
+.thinker-group[aria-pressed="true"]::after { transform: none; background: var(--ink); }
+.thinker-group .thinker-name::after { font-weight: 400; }
+.thinker-group[aria-pressed="true"] .thinker-name {
+  font-weight: 400;
+  -webkit-text-stroke: .028em currentColor;
 }
 
 .supertitle {
@@ -474,7 +470,7 @@ h1 {
   .thinker::after { width: 1px; height: 1.4rem; transform: scaleY(.5); transform-origin: center bottom; }
   .thinker:hover::after { transform: scaleY(.7); }
   .thinker[aria-pressed="true"]::after { transform: scaleY(1); }
-  .thinker-group { justify-content: flex-start; margin: 0; font-size: .95rem; }
+  .thinker.thinker-group { align-items: flex-start; font-size: .95rem; }
   .thinker-group::after { display: none; }
 }
 
@@ -668,6 +664,22 @@ var Piano = (function(){
 // `italic: false`, and `after` is HTML shown after the link. Optional
 // `width` overrides the quote box width (default 50rem). `group` puts a
 // section label in the menu above that thinker.
+// The menu's section labels open entries of their own: a short account of
+// what the thinkers grouped under each label share. Optional `width` as below.
+var GROUPS = {
+  'The Holists': {
+    width: '54rem',
+    text: 'The Holists treat the metacrisis as <strong>a single phenomenon that cannot be reduced to any one of its domains</strong>. Rather than locating its root on either side of the divide between <i>inner</i> and <i>outer</i>, they hold the psychological and cultural together with the economic and structural, as complementary aspects of one civilisational whole.'
+  },
+  'The Structuralists': {
+    width: '48rem',
+    text: 'The Structuralists locate the metacrisis in <strong>the <i>outer</i> dynamics of civilisation</strong>: the economic, technological and geopolitical structures, and the incentives built into them, that generate catastrophic and existential risk. On this view, the many crises share common underlying dynamics, so that addressing them means redesigning the systems that produce them.'
+  },
+  'The Culturalists': {
+    text: 'The Culturalists locate the metacrisis in <strong>the <i>inner</i> dimension of civilisation</strong>: the worldviews, modes of attention, education and psychological dynamics through which humans understand themselves and the world. On this view, the visible crises are symptoms of a deeper crisis of meaning, perception and understanding, rooted in the exhausted paradigm of modernity.'
+  }
+};
+
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
@@ -750,7 +762,7 @@ var THINKERS = [
   var definition = document.getElementById('definition');
   var source = document.getElementById('source');
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
-  var buttons = [], current = 0, swapTimer;
+  var buttons = [], entries = [], current = -1, home = 0, swapTimer;
 
   function render(t){
     // Keep the last two words together so one never sits alone on a line.
@@ -781,13 +793,14 @@ var THINKERS = [
 
   function show(i, instant){
     current = i;
+    var e = entries[i];
     buttons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === i)); });
     function apply(){
-      supertitle.textContent = THINKERS[i].name;
-      definition.innerHTML = render(THINKERS[i]);
-      renderSource(THINKERS[i].source);
-      panel.classList.toggle('is-quote', i !== 0);
-      if (THINKERS[i].width) layout.style.setProperty('--measure', THINKERS[i].width);
+      supertitle.textContent = e.name;
+      definition.innerHTML = render(e);
+      renderSource(e.source);
+      panel.classList.toggle('is-quote', i !== home);
+      if (e.width) layout.style.setProperty('--measure', e.width);
       else layout.style.removeProperty('--measure');
       panel.classList.remove('is-swapping');
     }
@@ -797,47 +810,53 @@ var THINKERS = [
     swapTimer = setTimeout(apply, 200);
   }
 
+  // One menu button per entry: a name, or a section label.
+  function entryButton(entry, className){
+    var i = entries.length;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = className;
+    var nameBox = document.createElement('span');
+    nameBox.className = 'thinker-name';
+    nameBox.setAttribute('data-name', entry.name);
+    var nameText = document.createElement('span');
+    nameText.className = 'thinker-text';
+    nameText.textContent = entry.name;
+    nameBox.appendChild(nameText);
+    b.appendChild(nameBox);
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function(){ if (current !== i) show(i); });
+    entries.push(entry);
+    buttons.push(b);
+    return b;
+  }
+
   var names = null;
-  THINKERS.forEach(function(t, i){
+  THINKERS.forEach(function(t, n){
     // A `group` starts a new section: its label, then its own list of names.
     if (t.group || !names){
       var section = document.createElement('li');
       section.className = 'thinker-section';
       if (t.group){
-        var label = document.createElement('div');
-        label.className = 'thinker-group';
-        label.textContent = t.group;
-        section.appendChild(label);
+        var g = GROUPS[t.group] || { text: '' };
+        section.appendChild(entryButton({ name: t.group, text: g.text, width: g.width }, 'thinker thinker-group'));
       }
       names = document.createElement('ol');
       names.className = 'thinker-names';
       section.appendChild(names);
       list.appendChild(section);
     }
+    if (n === 0) home = entries.length;
     var li = document.createElement('li');
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'thinker';
-    var nameBox = document.createElement('span');
-    nameBox.className = 'thinker-name';
-    nameBox.setAttribute('data-name', t.name);
-    var nameText = document.createElement('span');
-    nameText.className = 'thinker-text';
-    nameText.textContent = t.name;
-    nameBox.appendChild(nameText);
-    b.appendChild(nameBox);
-    b.setAttribute('aria-pressed', 'false');
-    b.addEventListener('click', function(){ if (current !== i) show(i); });
-    li.appendChild(b);
+    li.appendChild(entryButton(t, 'thinker'));
     names.appendChild(li);
-    buttons.push(b);
   });
 
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && current !== 0) show(0);
+    if (e.key === 'Escape' && current !== home) show(home);
   });
 
-  show(0, true);
+  show(home, true);
 })();
 
 // Domino row: book-shaped bars that topple in a chain. Each bar has its own
