@@ -255,9 +255,27 @@ main {
 .thinker:hover { color: var(--ink); }
 .thinker:hover::after { transform: scaleX(.7); background: var(--ink-soft); }
 .thinker[aria-pressed="true"] { color: var(--ink); }
+/* The hidden bold copy reserves each name's bold width, so selecting a name
+   never widens the menu or nudges the page. */
+.thinker-name { display: inline-grid; }
+.thinker-name::after {
+  content: attr(data-name);
+  font-weight: 700;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.thinker[aria-pressed="true"] .thinker-name {
+  font-weight: 700;
+}
+.thinker[aria-pressed="true"] .thinker-text {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .3em;
+}
 .thinker[aria-pressed="true"]::after { transform: scaleX(1); background: var(--ink); }
-.thinker:focus-visible {
-  outline: none;
+.thinker:focus-visible { outline: none; }
+.thinker:focus-visible .thinker-text {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: .3em;
@@ -336,6 +354,12 @@ h1 {
   font-size: clamp(1.25rem, 2.65vw, 1.6rem);
   line-height: 1.42;
   text-wrap: pretty;
+}
+/* ET Bembo has no bold italic. The browser's faux bold blurs on phones, so
+   italics inside bold passages are thickened with a thin outline instead. */
+.definition strong i {
+  font-synthesis: none;
+  -webkit-text-stroke: .028em currentColor;
 }
 .definition a {
   color: inherit;
@@ -740,7 +764,14 @@ var THINKERS = [
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'thinker';
-    b.textContent = t.name;
+    var nameBox = document.createElement('span');
+    nameBox.className = 'thinker-name';
+    nameBox.setAttribute('data-name', t.name);
+    var nameText = document.createElement('span');
+    nameText.className = 'thinker-text';
+    nameText.textContent = t.name;
+    nameBox.appendChild(nameText);
+    b.appendChild(nameBox);
     b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function(){ if (current !== i) show(i); });
     li.appendChild(b);
@@ -843,7 +874,7 @@ var THINKERS = [
     row.classList.remove('is-rising');
     turn = 0;
     var width = row.clientWidth;
-    var n = Math.max(2, Math.floor((width - W - 2 * H) / P) + 1);
+    var n = innerWidth > 900 ? 12 : Math.max(2, Math.floor((width - W - 2 * H) / P) + 1);
     var margin = (width - W - (n - 1) * P) / 2;
     bars = [];
     for (var k = 0; k < n; k++){
