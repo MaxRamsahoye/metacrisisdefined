@@ -126,7 +126,29 @@ body {
   grid-template-columns: minmax(max-content, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
   align-items: center;
   padding: 6rem 1.5rem;
+  position: relative;
 }
+
+/* Credit: bottom-left of the page (below long quotes, not over them). */
+.credit {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+  transition: color .2s ease, text-decoration-color .2s ease;
+}
+.credit a:hover { color: var(--ink); text-decoration-color: var(--ink-soft); }
+.credit a:focus-visible { outline: none; color: var(--ink); text-decoration-color: currentColor; }
 main {
   grid-column: 2;
   display: flex;
@@ -266,8 +288,9 @@ h1 {
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
     row-gap: 2.75rem;
-    padding: 5rem 1.25rem 3rem;
+    padding: 5rem 1.25rem 5rem;
   }
+  .credit { left: 1.25rem; }
   main { grid-column: 1; grid-row: 2; }
   .thinkers {
     grid-column: 1;
@@ -323,6 +346,7 @@ h1 {
     <p class="definition" id="definition">The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
     <p class="source" id="source"></p>
   </main>
+  <p class="credit">A project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
 </div>
 
 <script>
