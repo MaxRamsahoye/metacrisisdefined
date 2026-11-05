@@ -112,21 +112,27 @@ main {
 }
 
 /* Thinkers menu: names, each joined by a short rule to one vertical line. */
-/* Held at the vertical centre of the screen, so it stays put while the
-   page scrolls and when a longer or shorter definition loads. */
+/* A full-screen-height sticky column (the negative margins reach through
+   the layout's 6rem padding) with the list centred inside it, so the menu
+   stays put while the page scrolls and when a longer or shorter definition
+   loads. A list taller than the screen scrolls within the column. */
 .thinkers {
   grid-column: 1;
   grid-row: 1;
   justify-self: start;
   align-self: start;
   position: sticky;
-  top: 50vh;
-  transform: translateY(-50%);
+  top: 0;
+  height: 100vh;
+  margin-block: -6rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
   padding: 0 2.5rem 0 1rem;
 }
 .thinkers ol {
   list-style: none;
-  margin: 0;
+  margin: auto 0;
   padding: 1.5rem 0;
   border-right: 1px solid var(--rule);
   display: flex;
@@ -243,7 +249,9 @@ h1 {
     justify-self: center;
     align-self: auto;
     position: static;
-    transform: none;
+    height: auto;
+    margin-block: 0;
+    display: block;
     max-width: 100%;
     padding: 0;
     overflow-x: auto;
@@ -502,6 +510,19 @@ var THINKERS = [
     quote: true,
     text: '<strong>A metacrisis is a complex system whose elements are crises, and it exhibits, as a unified whole, its own unique behaviors and properties beyond those found in its elemental crises.</strong> Moreover, it is defined by a state-space that includes both actual and possible crises—where if a metacrisis was a musical instrument, it could simultaneously be emitting the sound of a chord, and have other chords which are silent but present. This means that, as a concept, a metacrisis is both temporal (the actual state of things right now) and atemporal (the constant qualities and possibilities). Every crisis we experience maps one part of the realm of unknown possibilities. When a crisis resolves, it is not gone—it’s imprinted on the metacrisis map….',
     source: { title: 'Metacrisis: A Conceptual History', italic: false, url: 'https://evanatlas.substack.com/p/metacrisis', after: ', <i>Mapping with Atlas</i> (2026)' }
+  },
+  {
+    name: 'Joshua Williams',
+    quote: true,
+    text: 'While this concept is partly related to some pre-existing terminology (e.g., polycrisis, meaning crisis), it is also different and original. To me, the significance of the theory is its introduction of a coherent frame by which we can better understand root causes for the complex array of global catastrophic risks and the prevailing crises that humanity currently faces. Critically, the Metacrisis theory also calls to our attention a staggering hidden premonition: our civilization structure must drastically change, if we have any hope for the flourishing of life on Earth. To make this change we need to stop searching for bad guys and start stopping bad games.',
+    source: { title: 'Introduction to the Metacrisis', italic: false, url: 'https://sites.google.com/view/intro-to-the-metacrisis', after: ', <i>The Stoa</i> (2023)' }
+  },
+  {
+    name: 'Jonah Wilberg',
+    quote: true,
+    text: '‘Metacrisis’ has emerged in recent years as a new concept for understanding 21st century global challenges. Probably its most well-known proponent is Daniel Schmachtenberger… On his way of presenting it, the concept refers to the existence of structural root causes or ‘generator functions’ of the many catastrophic and existential risks that humanity currently faces. While this framing may be the most widely known, there’s a wide range of other perspectives in recent metacrisis discussions – and this has led to confusion about what is meant by the term. In what follows I’ll explore the territory, tracing the history of the term’s adoption, and mapping boundaries and some open questions. I’ll suggest that recent metacrisis framings fall into two main kinds, depending on whether they emphasise ‘inner’ psychological or cultural factors or ‘outer’ economic or structural dynamics. (I’ll also consider ways in which these two approaches complement each other, rather than being in conflict.)',
+    width: '56rem',
+    source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
   }
 ];
 
