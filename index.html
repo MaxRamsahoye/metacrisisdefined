@@ -124,6 +124,8 @@ html, body { cursor: var(--cursor); }
 a, button, [role="button"], summary, label, select, [data-sound],
 a *, button *, [role="button"] *, summary *, label *, [data-sound] * { cursor: var(--cursor-link); }
 html, body { margin: 0; height: 100%; }
+/* Keep phones from enlarging small text on their own (font boosting). */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -383,10 +385,13 @@ main {
 }
 .supertitle, .definition, .source { transition: opacity .2s ease; }
 .is-swapping .supertitle, .is-swapping .definition, .is-swapping .source { opacity: 0; }
+/* The source shrinks with the definition (about two-thirds its size), so on
+   phones it stays clearly smaller than the definition. */
 .source {
   margin: 1.5rem 0 0;
-  font-size: 1.1rem;
+  font-size: clamp(.875rem, 1.75vw, 1.1rem);
   line-height: 1.5;
+  text-wrap: balance;
   color: var(--ink);
 }
 .source:empty { display: none; }
