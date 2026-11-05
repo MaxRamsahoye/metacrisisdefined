@@ -326,6 +326,16 @@ h1 {
   line-height: 1.42;
   text-wrap: pretty;
 }
+.definition a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+  transition: text-decoration-color .2s ease;
+}
+.definition a:hover { text-decoration-color: var(--ink-soft); }
+.definition a:focus-visible { outline: none; text-decoration-color: currentColor; }
 /* Quoted definitions run longer, so they get a wider measure. */
 .is-quote .definition { max-width: var(--measure); }
 @media (max-width: 1000px) {
@@ -398,7 +408,7 @@ h1 {
   <main id="definition-panel">
     <p class="supertitle" id="supertitle" aria-live="polite">Max Ramsahoye</p>
     <h1>The Metacrisis</h1>
-    <p class="definition" id="definition">The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
+    <p class="definition" id="definition">The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
     <p class="source" id="source"></p>
   </main>
   <p class="credit">A project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
@@ -567,7 +577,7 @@ var Piano = (function(){
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
-    text: 'The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to humanity.',
+    text: 'The Metacrisis is a conceptual frame for capturing <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to humanity.',
     source: { title: '/metacrisisdefined', url: 'https://maxramsahoye.github.io/metacrisisdefined/' }
   },
   {
