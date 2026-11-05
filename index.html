@@ -4,7 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Metacrisis</title>
+<link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="favicon-light.png">
+<link id="favicon-svg" rel="icon" type="image/svg+xml" href="favicon-light.svg">
 <script>
+function setFavicon(theme){
+  document.getElementById('favicon-png').href = 'favicon-' + theme + '.png';
+  document.getElementById('favicon-svg').href = 'favicon-' + theme + '.svg';
+}
 (function(){
   var saved;
   try { saved = localStorage.getItem('theme'); } catch (e) {}
@@ -12,6 +18,7 @@
     ? saved
     : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', theme);
+  setFavicon(theme);
 })();
 </script>
 <style>
@@ -252,6 +259,7 @@ var Piano = (function(){
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
+    setFavicon(next);
     sync();
   }
 
