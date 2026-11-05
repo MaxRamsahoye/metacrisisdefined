@@ -423,6 +423,7 @@ h1 {
 .definition a:focus-visible { outline: none; text-decoration-color: currentColor; }
 /* Quoted definitions run longer, so they get a wider measure. */
 .is-quote .definition { max-width: var(--measure); }
+.nowrap { white-space: nowrap; }
 @media (max-width: 1000px) {
   .definition { text-wrap: balance; }
 }
@@ -673,8 +674,8 @@ var Piano = (function(){
 // what the thinkers grouped under each label share. Optional `width` as below.
 var GROUPS = {
   'The Holists': {
-    width: '54rem',
-    text: 'The Holists treat the metacrisis as <strong>a single phenomenon that cannot be reduced to any one of its domains</strong>. Rather than locating its root on either side of the divide between <i>inner</i> and <i>outer</i>, they hold the psychological and cultural together with the economic and structural, as complementary aspects of one civilisational whole.'
+    width: '56rem',
+    text: 'The Holists treat the metacrisis as <strong>a single phenomenon that cannot be reduced to any one of its domains</strong>. Rather than locating its root on either side of the divide between <i>inner</i> and <i>outer</i>, they hold the psychological and cultural together with the economic and structural, as integrated aspects of one civilisational whole: the <span class="nowrap">life-world-system</span>.'
   },
   'The Structuralists': {
     text: 'The Structuralists locate the metacrisis in <strong>the <i>outer</i> dynamics of civilisation</strong>: the economic, technological and geopolitical structures, and the incentives built into them, that generate catastrophic and existential risk. On this view, addressing the metacrisis means redesigning the world-system that produces it.'
