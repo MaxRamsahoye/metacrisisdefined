@@ -68,6 +68,10 @@ function setFavicon(theme){
   --ink-soft: #6E5D48;
   --rule: #D9CBAE;
   --serif: "ET Bembo", "Bembo", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  /* The Civilisational Map's arrow cursors: outline by default, filled
+     over anything clickable. */
+  --cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23f3ead7' stroke='%23f3ead7' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='none' stroke='%233a2e21' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%233a2e21' stroke-width='1.4'/></g></svg>") 2 2, auto;
+  --cursor-link: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23f3ead7' stroke='%23f3ead7' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%233a2e21' stroke='%233a2e21' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%23f3ead7' stroke-width='1.4'/></g></svg>") 2 2, pointer;
   color-scheme: light;
 }
 :root[data-theme="midnight"] {
@@ -75,6 +79,8 @@ function setFavicon(theme){
   --ink: #E6DFCF;
   --ink-soft: #A9A391;
   --rule: #26334D;
+  --cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%230f1a2e' stroke='%230f1a2e' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='none' stroke='%23e6dfcf' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%23e6dfcf' stroke-width='1.4'/></g></svg>") 2 2, auto;
+  --cursor-link: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%230f1a2e' stroke='%230f1a2e' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23e6dfcf' stroke='%23e6dfcf' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%230f1a2e' stroke-width='1.4'/></g></svg>") 2 2, pointer;
   color-scheme: dark;
 }
 :root[data-theme="light"] {
@@ -82,6 +88,8 @@ function setFavicon(theme){
   --ink: #111111;
   --ink-soft: #6B6B64;
   --rule: #DCDAD0;
+  --cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23fffff8' stroke='%23fffff8' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='none' stroke='%23111111' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%23111111' stroke-width='1.4'/></g></svg>") 2 2, auto;
+  --cursor-link: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23fffff8' stroke='%23fffff8' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23111111' stroke='%23111111' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%23fffff8' stroke-width='1.4'/></g></svg>") 2 2, pointer;
   color-scheme: light;
 }
 :root[data-theme="dark"] {
@@ -89,10 +97,15 @@ function setFavicon(theme){
   --ink: #E8E6DE;
   --ink-soft: #8F8D85;
   --rule: #333330;
+  --cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23151515' stroke='%23151515' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='none' stroke='%23e8e6de' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%23e8e6de' stroke-width='1.4'/></g></svg>") 2 2, auto;
+  --cursor-link: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g stroke-linejoin='miter' stroke-linecap='square'><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23151515' stroke='%23151515' stroke-width='3.4'/><polygon points='2.0,2.0 6.84,16.99 9.01,9.01 16.99,6.84' fill='%23e8e6de' stroke='%23e8e6de' stroke-width='1.4'/><line x1='2.0' y1='2.0' x2='9.01' y2='9.01' stroke='%23151515' stroke-width='1.4'/></g></svg>") 2 2, pointer;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
+html, body { cursor: var(--cursor); }
+a, button, [role="button"], summary, label, select, [data-sound],
+a *, button *, [role="button"] *, summary *, label *, [data-sound] * { cursor: var(--cursor-link); }
 html, body { margin: 0; height: 100%; }
 body {
   background: var(--bg);
@@ -119,7 +132,7 @@ body {
   border-radius: 50%;
   background: transparent;
   color: var(--ink-soft);
-  cursor: pointer;
+  cursor: var(--cursor-link);
   transition: color .2s ease;
 }
 .theme-toggle:hover { color: var(--ink); }
@@ -278,7 +291,7 @@ main {
   line-height: 1.3;
   text-align: right;
   white-space: nowrap;
-  cursor: pointer;
+  cursor: var(--cursor-link);
   transition: color .25s ease;
 }
 /* The tick always occupies 2.5rem and grows inside it, so names never reflow. */
