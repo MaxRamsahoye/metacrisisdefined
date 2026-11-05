@@ -432,7 +432,8 @@ var Piano = (function(){
 
 // Thinkers shown in the left menu; the first is selected on load. `text` is
 // HTML; `quote: true` wraps it in ornamental quotation marks; optional
-// `source` adds a "from <title>" line.
+// `source` adds a "from <title>" line: the linked title is italic unless
+// `italic: false`, and `after` is HTML shown after the link.
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
@@ -450,6 +451,12 @@ var THINKERS = [
     quote: true,
     text: '(The meta-crisis is) a single phenomenon. We may be thinking of it as an ecological crisis; we may be thinking of it as a psychological or spiritual crisis; we may be thinking of it as a cultural crisis and a breakdown of community, family, et cetera; we may be thinking of it as a crisis of government, economics, and finance. And: <strong>it is all these things, but it’s not reducible to any one of them. That’s why it is a meta-crisis.</strong>',
     source: { title: 'Confronting The Meta-Crisis', url: 'https://youtu.be/jHxTvvPZUuI' }
+  },
+  {
+    name: 'Zak Stein',
+    quote: true,
+    text: 'There are a large number of crises drawing increasing amounts of public attention, such as the ecological, economic, immigration, geopolitical, and energy crises. But there is also an invisible crisis unfolding within our own minds and cultures that is getting much less attention. This is the metacrisis, which has to do with how humans understand themselves and the world. It is a generalised educational crisis involving a set of related psychological dynamics; systems and societies are in trouble, but it is the psyche—the human dimension—that is in the direst of straits.',
+    source: { title: 'Education is the Metacrisis', italic: false, url: 'https://systems-souls-society.com/education-is-the-metacrisis/', after: ', <i>Perspectiva</i> (2022)' }
   }
 ];
 
@@ -477,11 +484,16 @@ var THINKERS = [
     a.href = s.url;
     a.target = '_blank';
     a.rel = 'noopener';
-    var title = document.createElement('i');
-    title.textContent = s.title;
-    a.appendChild(title);
+    if (s.italic === false) {
+      a.textContent = s.title;
+    } else {
+      var title = document.createElement('i');
+      title.textContent = s.title;
+      a.appendChild(title);
+    }
     source.appendChild(document.createTextNode('from '));
     source.appendChild(a);
+    if (s.after) source.insertAdjacentHTML('beforeend', s.after);
   }
 
   function show(i, instant){
