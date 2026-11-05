@@ -131,9 +131,9 @@ h1 {
 var Piano = (function(){
   var AC = window.AudioContext || window.webkitAudioContext;
   var ctx = null, bus = null, lastHoverAt = 0, lastHoverIdx = -1;
-  // G major pentatonic, upper register: E5 G5 A5 B5 D6 (MIDI numbers)
-  var HOVER_NOTES = [76, 79, 81, 83, 86];
-  var CLICK_CHORD = [67, 74]; // G4 + D5, an open fifth
+  // G major pentatonic, middle register: G4 A4 B4 D5 E5 (MIDI numbers)
+  var HOVER_NOTES = [67, 69, 71, 74, 76];
+  var CLICK_CHORD = [55, 62]; // G3 + D4, an open fifth
 
   function freqOf(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
 
@@ -150,9 +150,9 @@ var Piano = (function(){
   function buildBus(ac){
     var input = ac.createGain();
     var tone = ac.createBiquadFilter();
-    tone.type = 'lowpass'; tone.frequency.value = 6000; tone.Q.value = 0.4;
-    var dry = ac.createGain(); dry.gain.value = 0.85;
-    var wet = ac.createGain(); wet.gain.value = 0.3;
+    tone.type = 'lowpass'; tone.frequency.value = 3200; tone.Q.value = 0.3;
+    var dry = ac.createGain(); dry.gain.value = 0.72;
+    var wet = ac.createGain(); wet.gain.value = 0.38;
     var verb = ac.createConvolver(); verb.buffer = impulse(ac, 2.6, 3.4);
     var limiter = ac.createDynamicsCompressor();
     limiter.threshold.value = -10; limiter.knee.value = 8; limiter.ratio.value = 4;
@@ -165,29 +165,29 @@ var Piano = (function(){
     return input;
   }
 
-  // One piano-like voice: stretched (inharmonic) partials, a detuned second
-  // string on the lowest partials, two-stage decay, and a soft hammer tap.
+  // One felt-piano voice: stretched (inharmonic) partials with a steep
+  // treble roll-off, a detuned second string on the lowest partials, and a
+  // rounded 20ms swell instead of a hard hammer strike.
   function voice(ac, dest, freq, when, velocity, length){
     var B = 0.00028;
-    var amps = [1, 0.5, 0.3, 0.17, 0.1, 0.06, 0.035, 0.02];
+    var amps = [1, 0.32, 0.12, 0.05, 0.02];
     var out = ac.createGain(); out.gain.value = velocity;
     var bright = ac.createBiquadFilter();
     bright.type = 'lowpass';
-    bright.frequency.value = Math.min(14000, freq * (3 + velocity * 12));
+    bright.frequency.value = Math.min(4000, freq * (2 + velocity * 4));
     bright.Q.value = 0.2;
     out.connect(bright); bright.connect(dest);
-    var stopAt = when + length + 0.2;
+    var stopAt = when + length + 0.3;
 
     amps.forEach(function(amp, i){
       var n = i + 1;
       var f = freq * n * Math.sqrt(1 + B * n * n);
-      if (f > 15000) return;
       var g = ac.createGain();
-      var slow = length / (1.2 + i * 0.8);
+      var slow = length / (1 + i * 0.7);
       g.gain.setValueAtTime(0, when);
-      g.gain.linearRampToValueAtTime(amp, when + 0.004);
-      g.gain.setTargetAtTime(amp * 0.38, when + 0.004, 0.06 + 0.02 / n);
-      g.gain.setTargetAtTime(0.0001, when + 0.22, slow * 0.28);
+      g.gain.setTargetAtTime(amp, when, 0.007);
+      g.gain.setTargetAtTime(amp * 0.6, when + 0.03, 0.15);
+      g.gain.setTargetAtTime(0.0001, when + 0.3, slow * 0.3);
       g.connect(out);
       var strings = i < 3 ? [-1.4, 1.4] : [0];
       strings.forEach(function(cents){
@@ -200,17 +200,6 @@ var Piano = (function(){
         o.start(when); o.stop(stopAt);
       });
     });
-
-    var nLen = Math.floor(ac.sampleRate * 0.03);
-    var nBuf = ac.createBuffer(1, nLen, ac.sampleRate);
-    var nd = nBuf.getChannelData(0);
-    for (var k = 0; k < nLen; k++) nd[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / nLen, 4);
-    var hammer = ac.createBufferSource(); hammer.buffer = nBuf;
-    var hf = ac.createBiquadFilter(); hf.type = 'bandpass';
-    hf.frequency.value = Math.min(9000, freq * 5); hf.Q.value = 0.8;
-    var hg = ac.createGain(); hg.gain.value = 0.05 * velocity;
-    hammer.connect(hf); hf.connect(hg); hg.connect(dest);
-    hammer.start(when);
   }
 
   function unlock(){
@@ -224,20 +213,23 @@ var Piano = (function(){
     // Browsers only allow sound after the visitor has clicked or pressed a key.
     if (!ctx || ctx.state !== 'running') return;
     var now = performance.now();
-    if (now - lastHoverAt < 70) return;
+    if (now - lastHoverAt < 90) return;
     lastHoverAt = now;
-    var idx;
-    do { idx = Math.floor(Math.random() * HOVER_NOTES.length); }
-    while (idx === lastHoverIdx && HOVER_NOTES.length > 1);
+    // Step to a neighbouring scale note rather than leaping around.
+    var last = HOVER_NOTES.length - 1, idx;
+    if (lastHoverIdx < 0) idx = Math.floor(last / 2);
+    else if (lastHoverIdx === 0) idx = 1;
+    else if (lastHoverIdx === last) idx = last - 1;
+    else idx = lastHoverIdx + (Math.random() < 0.5 ? -1 : 1);
     lastHoverIdx = idx;
-    voice(ctx, bus, freqOf(HOVER_NOTES[idx]), ctx.currentTime + 0.005, 0.15, 1.6);
+    voice(ctx, bus, freqOf(HOVER_NOTES[idx]), ctx.currentTime + 0.005, 0.13, 1.5);
   }
 
   function click(){
     if (!unlock()) return;
     var t = ctx.currentTime + 0.005;
-    voice(ctx, bus, freqOf(CLICK_CHORD[0]), t, 0.34, 2.6);
-    voice(ctx, bus, freqOf(CLICK_CHORD[1]), t + 0.022, 0.24, 2.4);
+    voice(ctx, bus, freqOf(CLICK_CHORD[0]), t, 0.22, 2.6);
+    voice(ctx, bus, freqOf(CLICK_CHORD[1]), t + 0.03, 0.16, 2.4);
   }
 
   return { unlock: unlock, hover: hover, click: click };
