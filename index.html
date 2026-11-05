@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Metacrisis</title>
+<title>The Metacrisis Defined</title>
 <meta name="description" content="Definitions of the metacrisis from the theorists who have employed the concept, read side by side. A project by Max Ramsahoye.">
 <!-- Preview card for links shared on social media and in messaging apps -->
 <meta property="og:type" content="website">
@@ -742,6 +742,7 @@ var GROUPS = {
 // "a project" link.
 var ABOUT = {
   name: 'About this project',
+  slug: 'about',
   width: '52rem',
   text: '<strong><a href="https://maxramsahoye.github.io/metacrisisdefined/"><i>/metacrisisdefined</i></a></strong> gathers <strong>definitions of the metacrisis from the theorists who have employed the concept</strong>, so that they can be read side by side. The term is used in many ways, and its meaning is still contested. Placed together, the definitions show where they converge and where they part: some trace the metacrisis to the <i>external</i> structures of civilisation, some to its <i>inner</i> life, and some hold the two together. Select a name to read a definition in its author’s own words.'
 };
@@ -857,9 +858,26 @@ var THINKERS = [
     if (s.after) source.insertAdjacentHTML('beforeend', s.after);
   }
 
-  function show(i, instant){
+  // Each entry has its own address: /#max-ramsahoye, /#zak-stein, /#holists,
+  // /#about. The bare address opens the default entry. Back and forward step
+  // through picks.
+  function slugOf(e){
+    return e.slug || e.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+      .replace(/^the /, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+  function fromHash(){
+    var slug = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+    for (var k = 0; k < entries.length; k++) if (slugOf(entries[k]) === slug) return k;
+    return home;
+  }
+
+  function show(i, instant, fromHistory){
     current = i;
     var e = entries[i];
+    if (!fromHistory){
+      var hash = '#' + slugOf(e);
+      if (hash !== location.hash) history.pushState(null, '', hash);
+    }
     buttons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === i)); });
     function apply(){
       supertitle.textContent = e.name;
@@ -936,7 +954,12 @@ var THINKERS = [
     if (e.key === 'Escape' && current !== home) show(home);
   });
 
-  show(location.hash === '#about' ? about : home, true);
+  window.addEventListener('popstate', function(){
+    var k = fromHash();
+    if (k !== current) show(k, false, true);
+  });
+
+  show(fromHash(), true, true);
 })();
 
 // Dominoes: book-shaped bars that topple in a chain. Each bar has its own fall
