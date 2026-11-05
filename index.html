@@ -270,7 +270,7 @@ h1 {
     <ol id="thinker-list"></ol>
   </nav>
   <main id="definition-panel">
-    <p class="supertitle" id="supertitle" aria-live="polite"></p>
+    <p class="supertitle" id="supertitle" aria-live="polite">Max Ramsahoye</p>
     <h1>The Metacrisis</h1>
     <p class="definition" id="definition">The Metacrisis is a conceptual frame for capturing civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
     <p class="source" id="source"></p>
@@ -430,9 +430,14 @@ var Piano = (function(){
   sync();
 })();
 
-// Thinkers shown in the left menu. `text` is HTML; `quote: true` wraps it in
-// ornamental quotation marks; optional `source` adds a "from <title>" line.
+// Thinkers shown in the left menu; the first is selected on load. `text` is
+// HTML; `quote: true` wraps it in ornamental quotation marks; optional
+// `source` adds a "from <title>" line.
 var THINKERS = [
+  {
+    name: 'Max Ramsahoye',
+    text: 'The Metacrisis is a conceptual frame for capturing civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to humanity.'
+  },
   {
     name: 'Daniel Schmachtenberger',
     quote: true,
@@ -447,9 +452,8 @@ var THINKERS = [
   var supertitle = document.getElementById('supertitle');
   var definition = document.getElementById('definition');
   var source = document.getElementById('source');
-  var DEFAULT_HTML = definition.innerHTML;
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
-  var buttons = [], current = -1, swapTimer;
+  var buttons = [], current = 0, swapTimer;
 
   function render(t){
     // Keep the last two words together so one never sits alone on a line.
@@ -473,17 +477,17 @@ var THINKERS = [
     source.appendChild(a);
   }
 
-  function show(i){
+  function show(i, instant){
     current = i;
     buttons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === i)); });
     function apply(){
-      supertitle.textContent = i < 0 ? '' : THINKERS[i].name;
-      definition.innerHTML = i < 0 ? DEFAULT_HTML : render(THINKERS[i]);
-      renderSource(i < 0 ? null : THINKERS[i].source);
+      supertitle.textContent = THINKERS[i].name;
+      definition.innerHTML = render(THINKERS[i]);
+      renderSource(THINKERS[i].source);
       panel.classList.remove('is-swapping');
     }
     clearTimeout(swapTimer);
-    if (reduceMotion && reduceMotion.matches) return apply();
+    if (instant || (reduceMotion && reduceMotion.matches)) return apply();
     panel.classList.add('is-swapping');
     swapTimer = setTimeout(apply, 200);
   }
@@ -495,15 +499,17 @@ var THINKERS = [
     b.className = 'thinker';
     b.textContent = t.name;
     b.setAttribute('aria-pressed', 'false');
-    b.addEventListener('click', function(){ show(current === i ? -1 : i); });
+    b.addEventListener('click', function(){ if (current !== i) show(i); });
     li.appendChild(b);
     list.appendChild(li);
     buttons.push(b);
   });
 
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && current >= 0) show(-1);
+    if (e.key === 'Escape' && current !== 0) show(0);
   });
+
+  show(0, true);
 })();
 </script>
 </body>
