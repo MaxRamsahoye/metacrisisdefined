@@ -150,8 +150,7 @@ body {
 
 /* Domino row: the book-stack bars from maxramsahoye.github.io/max's loading
    screen, across the middle third of the bottom. The script keeps a bar's length
-   clear at both ends so the last bar can fall flat either way; mirroring the
-   row turns a right-to-left fall into a left-to-right one. */
+   clear at both ends so the end bar can fall flat either way. */
 .dominoes {
   position: absolute;
   right: calc(100% / 3);
@@ -160,7 +159,6 @@ body {
   height: 50px;
   pointer-events: none;
 }
-.dominoes.is-mirrored { transform: scaleX(-1); }
 .domino {
   position: absolute;
   bottom: 0;
@@ -757,18 +755,26 @@ var THINKERS = [
   show(0, true);
 })();
 
-// Domino row: book-shaped bars that topple in a chain, alternating direction.
-// Each bar falls under gravity about its bottom corner and comes to rest
+// Domino row: book-shaped bars that topple in a chain. Each bar has its own
+// fall direction, falls under gravity about its bottom corner and comes to rest
 // against its neighbour's actual outline, so they never pass through one another.
+// Sequence: left to right, right to left, both ends meeting in the middle, repeat.
 (function(){
   var row = document.getElementById('dominoes');
   var W = 10, H = 50, P = 30, K = 60, PUSH = 0.8, STEP = 1 / 120;
+  var SEQUENCE = ['ltr', 'rtl', 'meet'];
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
-  var bars = [], frame = 0;
+  var bars = [], frame = 0, turn = 0, order = 0;
 
-  function corners(x0, a){
+  // Corners of bar b leaning by angle a: left-fallers pivot on their
+  // bottom-left corner, right-fallers on their bottom-right.
+  function corners(b, a){
     var c = Math.cos(a), s = Math.sin(a);
-    return [[0, 0], [W, 0], [W, H], [0, H]].map(function(p){ return [x0 + p[0] * c - p[1] * s, p[0] * s + p[1] * c]; });
+    if (b.d > 0){
+      var px = b.x + W;
+      return [[-W, 0], [0, 0], [0, H], [-W, H]].map(function(p){ return [px + p[0] * c + p[1] * s, -p[0] * s + p[1] * c]; });
+    }
+    return [[0, 0], [W, 0], [W, H], [0, H]].map(function(p){ return [b.x + p[0] * c - p[1] * s, p[0] * s + p[1] * c]; });
   }
   // Separating-axis test for two rectangles, allowing them to touch.
   function overlap(A, B){
@@ -783,66 +789,86 @@ var THINKERS = [
     }
     return true;
   }
-  // Furthest a bar can lean before touching its left neighbour (or lying flat).
-  function limit(i){
-    if (i === bars.length - 1) return Math.PI / 2;
-    var nb = corners(bars[i + 1].x, bars[i + 1].t);
-    if (!overlap(corners(bars[i].x, Math.PI / 2), nb)) return Math.PI / 2;
-    var lo = bars[i].t, hi = Math.PI / 2;
-    for (var k = 0; k < 18; k++){ var m = (lo + hi) / 2; if (overlap(corners(bars[i].x, m), nb)) hi = m; else lo = m; }
+  // Furthest a bar can lean before touching the neighbour it falls towards
+  // (or lying flat at the end of the row).
+  function limit(j){
+    var b = bars[j], n = bars[j + b.d];
+    if (!n) return Math.PI / 2;
+    var nb = corners(n, n.t);
+    if (!overlap(corners(b, Math.PI / 2), nb)) return Math.PI / 2;
+    var lo = b.t, hi = Math.PI / 2;
+    for (var k = 0; k < 18; k++){ var m = (lo + hi) / 2; if (overlap(corners(b, m), nb)) hi = m; else lo = m; }
     return lo;
   }
-  // One physics step; returns true while anything is still moving.
+  // One physics step; returns true while anything is still moving. Each bar is
+  // updated after the neighbour it falls towards.
   function step(){
-    var moving = !bars[bars.length - 1].active;
-    for (var i = bars.length - 1; i >= 0; i--){
-      var b = bars[i]; if (!b.active) continue;
+    var moving = false, seq = [], j;
+    for (j = 0; j < bars.length; j++) if (bars[j].d < 0) seq.push(j);
+    for (j = bars.length - 1; j >= 0; j--) if (bars[j].d > 0) seq.push(j);
+    seq.forEach(function(j){
+      var b = bars[j]; if (!b.active) return;
       var before = b.t;
       b.w += K * Math.sin(Math.max(b.t, 0.02)) * STEP;
-      var nt = b.t + b.w * STEP, lim = limit(i);
+      var nt = b.t + b.w * STEP, lim = limit(j);
       if (nt >= lim){
         nt = lim;
-        if (i < bars.length - 1){ var nb = bars[i + 1]; nb.active = true; nb.w = Math.max(nb.w, b.w * PUSH); }
+        var n = bars[j + b.d];
+        // Only a neighbour falling the same way is knocked on; head-on ones just meet.
+        if (n && n.d === b.d){ if (!n.active){ n.active = true; n.order = order++; } n.w = Math.max(n.w, b.w * PUSH); }
         b.w = 0;
       }
       b.t = nt;
       if (Math.abs(b.t - before) > 1e-5) moving = true;
-    }
+    });
     return moving;
   }
-  function render(){ bars.forEach(function(b){ b.el.style.transform = 'rotate(' + (-b.t) + 'rad)'; }); }
-  function reset(){ bars.forEach(function(b){ b.t = 0; b.w = 0; b.active = false; }); }
+  function render(){
+    bars.forEach(function(b){
+      b.el.style.transformOrigin = b.d > 0 ? '100% 100%' : '0 100%';
+      b.el.style.transform = 'rotate(' + (b.d > 0 ? b.t : -b.t) + 'rad)';
+    });
+  }
+  function reset(){ bars.forEach(function(b){ b.t = 0; b.w = 0; b.active = false; b.order = -1; }); }
 
   var timers = [];
   function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
   function stop(){ cancelAnimationFrame(frame); timers.forEach(clearTimeout); timers = []; }
 
-  // Bars are spaced symmetrically with a bar's length clear at each end, so the
-  // upright row looks identical mirrored or not and the direction can flip
-  // unseen while every bar is standing.
+  // Bars are spaced symmetrically with a bar's length clear at each end, so
+  // the end bar can fall flat in either direction.
   function build(){
     stop();
     row.textContent = '';
-    row.classList.remove('is-mirrored', 'is-rising');
+    row.classList.remove('is-rising');
+    turn = 0;
     var width = row.clientWidth;
     var n = Math.max(2, Math.floor((width - W - 2 * H) / P) + 1);
     var margin = (width - W - (n - 1) * P) / 2;
     bars = [];
     for (var k = 0; k < n; k++){
-      var x = width - margin - W - k * P, el = document.createElement('span');
+      var x = margin + k * P, el = document.createElement('span');
       el.className = 'domino';
       el.style.left = x + 'px';
       row.appendChild(el);
-      bars.push({ el: el, x: x, t: 0, w: 0, active: false });
+      bars.push({ el: el, x: x, d: -1, t: 0, w: 0, active: false, order: -1 });
     }
     render();
     if (!(reduceMotion && reduceMotion.matches)) later(fall, 1200);
   }
 
-  // Cycle: fall, hold, stand back up, flip direction, fall again.
+  function kick(j){ bars[j].active = true; bars[j].w = 1.2; bars[j].order = order++; }
   function fall(){
-    reset();
-    bars[0].active = true; bars[0].w = 1.2;
+    var mode = SEQUENCE[turn % SEQUENCE.length], N = bars.length, half = Math.floor(N / 2);
+    reset(); order = 0;
+    bars.forEach(function(b, j){
+      b.d = mode === 'ltr' ? 1 : mode === 'rtl' ? -1 :
+            j < half ? 1 : (N % 2 && j === half ? 0 : -1);   // an odd middle bar is hit from both sides and stays up
+    });
+    render();
+    if (mode === 'ltr') kick(0);
+    else if (mode === 'rtl') kick(N - 1);
+    else { kick(0); kick(N - 1); }
     var last = performance.now(), acc = 0, calm = 0;
     function tick(now){
       acc += Math.min((now - last) / 1000, 1 / 20); last = now;
@@ -855,12 +881,14 @@ var THINKERS = [
   function rise(){
     row.classList.add('is-rising');
     // The last to fall rises first.
-    bars.forEach(function(b, i){ b.el.style.transitionDelay = ((bars.length - 1 - i) * 25) + 'ms'; });
-    reset(); render();
+    var maxOrder = Math.max.apply(null, bars.map(function(b){ return b.order; }));
+    bars.forEach(function(b){ b.el.style.transitionDelay = (b.order < 0 ? 0 : (maxOrder - b.order) * 25) + 'ms'; });
+    bars.forEach(function(b){ b.t = 0; b.w = 0; b.active = false; });
+    render();
     later(function(){
       row.classList.remove('is-rising');
       bars.forEach(function(b){ b.el.style.transitionDelay = ''; });
-      row.classList.toggle('is-mirrored');
+      turn++;
       later(fall, 1000);
     }, 500 + bars.length * 25 + 100);
   }
