@@ -7,9 +7,10 @@
 <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="favicon-light.png">
 <link id="favicon-svg" rel="icon" type="image/svg+xml" href="favicon-light.svg">
 <script>
-/* Four themes, as on the Civilisational Map: white, black, sepia, blue.
+/* Four themes, with the Civilisational Map's palettes: black (the default),
+   white, sepia, blue.
    The favicon M is black on the light pair, white on the dark pair. */
-var THEMES = ['light', 'dark', 'sepia', 'midnight'];
+var THEMES = ['dark', 'light', 'sepia', 'midnight'];
 function setFavicon(theme){
   var tone = theme === 'dark' || theme === 'midnight' ? 'dark' : 'light';
   document.getElementById('favicon-png').href = 'favicon-' + tone + '.png';
@@ -25,9 +26,7 @@ function setFavicon(theme){
       saved = old === 'dark' ? 'midnight' : old === 'light' ? 'sepia' : null;
     }
   } catch (e) {}
-  var theme = THEMES.indexOf(saved) >= 0
-    ? saved
-    : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'midnight' : 'sepia');
+  var theme = THEMES.indexOf(saved) >= 0 ? saved : THEMES[0];
   document.documentElement.setAttribute('data-theme', theme);
   setFavicon(theme);
 })();
@@ -480,7 +479,7 @@ h1 {
 </style>
 </head>
 <body>
-<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Change theme (white, black, sepia, blue)" aria-keyshortcuts="T" title="Change theme (T)">
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="Change theme (black, white, sepia, blue)" aria-keyshortcuts="T" title="Change theme (T)">
   <svg class="i-light" viewBox="-3.7 -3.7 107.3 107.3" aria-hidden="true"><circle cx="50" cy="50" r="18"/><line x1="81.0" y1="50.0" x2="94.0" y2="50.0"/><line x1="71.9" y1="71.9" x2="81.1" y2="81.1"/><line x1="50.0" y1="81.0" x2="50.0" y2="94.0"/><line x1="28.1" y1="71.9" x2="18.9" y2="81.1"/><line x1="19.0" y1="50.0" x2="6.0" y2="50.0"/><line x1="28.1" y1="28.1" x2="18.9" y2="18.9"/><line x1="50.0" y1="19.0" x2="50.0" y2="6.0"/><line x1="71.9" y1="28.1" x2="81.1" y2="18.9"/></svg>
   <svg class="i-dark" viewBox="-5.4 2.6 102.9 102.9" aria-hidden="true"><path class="fill" d="M40.3 18.4 A36 36 0 1 0 81.6 59.7 A30 30 0 0 1 40.3 18.4 Z"/></svg>
   <svg class="i-sepia" viewBox="-3.7 -3.7 107.3 107.3" aria-hidden="true"><circle class="fill" cx="50" cy="50" r="21.5"/><line x1="81.0" y1="50.0" x2="94.0" y2="50.0"/><line x1="71.9" y1="71.9" x2="81.1" y2="81.1"/><line x1="50.0" y1="81.0" x2="50.0" y2="94.0"/><line x1="28.1" y1="71.9" x2="18.9" y2="81.1"/><line x1="19.0" y1="50.0" x2="6.0" y2="50.0"/><line x1="28.1" y1="28.1" x2="18.9" y2="18.9"/><line x1="50.0" y1="19.0" x2="50.0" y2="6.0"/><line x1="71.9" y1="28.1" x2="81.1" y2="18.9"/></svg>
@@ -489,7 +488,7 @@ h1 {
 
 <header class="masthead">
   <a class="wordmark" href="./">/metacrisisdefined</a>
-  <p class="credit">A project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
+  <p class="credit">a project by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
 </header>
 
 <div class="layout">
@@ -620,7 +619,7 @@ var Piano = (function(){
 
   var NAMES = { light: 'white', dark: 'black', sepia: 'sepia', midnight: 'blue' };
   function sync(){
-    btn.setAttribute('aria-label', 'Change theme (now ' + NAMES[root.getAttribute('data-theme')] + '; white, black, sepia, blue)');
+    btn.setAttribute('aria-label', 'Change theme (now ' + NAMES[root.getAttribute('data-theme')] + '; black, white, sepia, blue)');
   }
   function toggleTheme(){
     var next = THEMES[(THEMES.indexOf(root.getAttribute('data-theme')) + 1) % THEMES.length];
