@@ -98,7 +98,8 @@ body {
 .layout {
   min-height: 100%;
   display: grid;
-  grid-template-columns: minmax(max-content, 1fr) minmax(0, 50rem) minmax(0, 1fr);
+  --measure: 50rem;
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
   align-items: center;
   padding: 6rem 1.5rem;
 }
@@ -224,7 +225,7 @@ h1 {
   text-wrap: pretty;
 }
 /* Quoted definitions run longer, so they get a wider measure. */
-.is-quote .definition { max-width: 50rem; }
+.is-quote .definition { max-width: var(--measure); }
 @media (max-width: 1000px) {
   .definition { text-wrap: balance; }
 }
@@ -444,7 +445,8 @@ var Piano = (function(){
 // Thinkers shown in the left menu; the first is selected on load. `text` is
 // HTML; `quote: true` wraps it in ornamental quotation marks; optional
 // `source` adds a "from <title>" line: the linked title is italic unless
-// `italic: false`, and `after` is HTML shown after the link.
+// `italic: false`, and `after` is HTML shown after the link. Optional
+// `width` overrides the quote box width (default 50rem).
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
@@ -473,6 +475,7 @@ var THINKERS = [
     name: 'Iain McGilchrist',
     quote: true,
     text: 'I believe it is the left hemispheric view of the world, intellectually jejune and morally bankrupt as it is, that has resulted in what has been called the metacrisis: not just the odd crisis here and there, but [extensive list]… <strong>These aspects of the so-called metacrisis have a multitude of proximal causes: economic, political, social, psychological, technological, and so on. But beneath and beyond that, each manifests, within those realms, aspects of the left hemisphere’s dysfunctional view of the world.</strong> The very thing that originates the problem also militates against seeing the problem. Seeing the wider picture—a necessary prelude to understanding—is now increasingly disfavoured, and as a consequence the crises I have referred to are often seen as isolated pieces of bad luck. But they are not: they could have been, and were by some, predicted. <strong>The metacrisis is the predictable outcome of a complete failure to understand what a human being is, what the world is, and what the one has to do with the other.</strong> And all this is the sort of thing the right hemisphere is far better able to understand than the left.',
+    width: '58rem',
     source: { title: 'A Revolution in Thought? How Hemisphere Theory Helps us Understand the Metacrisis', italic: false, url: 'https://channelmcgilchrist.com/a-revolution-in-thought-how-hemisphere-theory-helps-us-understand-the-metacrisis/', after: ', <i>Channel McGilchrist</i> (2024)' }
   }
 ];
@@ -480,6 +483,7 @@ var THINKERS = [
 (function(){
   var list = document.getElementById('thinker-list');
   var panel = document.getElementById('definition-panel');
+  var layout = panel.parentElement;
   var supertitle = document.getElementById('supertitle');
   var definition = document.getElementById('definition');
   var source = document.getElementById('source');
@@ -521,6 +525,8 @@ var THINKERS = [
       definition.innerHTML = render(THINKERS[i]);
       renderSource(THINKERS[i].source);
       panel.classList.toggle('is-quote', i !== 0);
+      if (THINKERS[i].width) layout.style.setProperty('--measure', THINKERS[i].width);
+      else layout.style.removeProperty('--measure');
       panel.classList.remove('is-swapping');
     }
     clearTimeout(swapTimer);
