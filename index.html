@@ -175,8 +175,25 @@ main {
   text-transform: uppercase;
   color: var(--ink-soft);
 }
-.supertitle, .definition { transition: opacity .2s ease; }
-.is-swapping .supertitle, .is-swapping .definition { opacity: 0; }
+.supertitle, .definition, .source { transition: opacity .2s ease; }
+.is-swapping .supertitle, .is-swapping .definition, .is-swapping .source { opacity: 0; }
+.source {
+  margin: 1.5rem 0 0;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+.source:empty { display: none; }
+.source a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+  transition: color .2s ease, text-decoration-color .2s ease;
+}
+.source a:hover { color: var(--ink); text-decoration-color: var(--ink-soft); }
+.source a:focus-visible { outline: none; color: var(--ink); text-decoration-color: currentColor; }
 .qm {
   font-size: 1.45em;
   line-height: 0;
@@ -238,7 +255,7 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body, .theme-toggle, .thinker, .thinker::after, .supertitle, .definition { transition: none; }
+  body, .theme-toggle, .thinker, .thinker::after, .supertitle, .definition, .source, .source a { transition: none; }
 }
 </style>
 </head>
@@ -256,6 +273,7 @@ h1 {
     <p class="supertitle" id="supertitle" aria-live="polite"></p>
     <h1>The Metacrisis</h1>
     <p class="definition" id="definition">The Metacrisis is a conceptual frame for capturing civilisation’s total <i>problem complex</i>, the <i>generative dynamics</i> that (re)produce it and the <i>attractor states</i> it vectors towards. It marks the terminal phase in the developmental process of the current world-system, which is now emergently posing an existential risk to&nbsp;humanity.</p>
+    <p class="source" id="source"></p>
   </main>
 </div>
 
@@ -413,12 +431,13 @@ var Piano = (function(){
 })();
 
 // Thinkers shown in the left menu. `text` is HTML; `quote: true` wraps it in
-// ornamental quotation marks.
+// ornamental quotation marks; optional `source` adds a "from <title>" line.
 var THINKERS = [
   {
     name: 'Daniel Schmachtenberger',
     quote: true,
-    text: 'Our civilization has never been more vast, complicated, obligate, and fragile. This systemic fragility is exacerbated by technological change, geopolitical instability, an ecological crisis, and a reliance on global economic supply chains (among other factors). These interconnected problems—and the common underlying dynamics that give rise to them—are known collectively as the metacrisis. The concept of the metacrisis may be seen as a unified theory for making sense of the world as it is now.'
+    text: 'Our civilization has never been more vast, complicated, obligate, and fragile. This systemic fragility is exacerbated by technological change, geopolitical instability, an ecological crisis, and a reliance on global economic supply chains (among other factors). These interconnected problems—and the common underlying dynamics that give rise to them—are known collectively as the metacrisis. The concept of the metacrisis may be seen as a unified theory for making sense of the world as it is now.',
+    source: { title: 'The Consilience Project', url: 'https://consilienceproject.org/about-the-project/' }
   }
 ];
 
@@ -427,6 +446,7 @@ var THINKERS = [
   var panel = document.getElementById('definition-panel');
   var supertitle = document.getElementById('supertitle');
   var definition = document.getElementById('definition');
+  var source = document.getElementById('source');
   var DEFAULT_HTML = definition.innerHTML;
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
   var buttons = [], current = -1, swapTimer;
@@ -439,12 +459,27 @@ var THINKERS = [
       : body;
   }
 
+  function renderSource(s){
+    source.textContent = '';
+    if (!s) return;
+    var a = document.createElement('a');
+    a.href = s.url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    var title = document.createElement('i');
+    title.textContent = s.title;
+    a.appendChild(title);
+    source.appendChild(document.createTextNode('from '));
+    source.appendChild(a);
+  }
+
   function show(i){
     current = i;
     buttons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === i)); });
     function apply(){
       supertitle.textContent = i < 0 ? '' : THINKERS[i].name;
       definition.innerHTML = i < 0 ? DEFAULT_HTML : render(THINKERS[i]);
+      renderSource(i < 0 ? null : THINKERS[i].source);
       panel.classList.remove('is-swapping');
     }
     clearTimeout(swapTimer);
