@@ -440,13 +440,20 @@ main {
   cursor: var(--cursor-link);
 }
 .org, .thinker-name {
+  --ring-fill: transparent;
   border-radius: .4em;
   outline: 1px solid transparent;
   outline-offset: .3em;
-  transition: outline-color .25s ease;
+  /* The fill runs out to the ring: the shadow extends the background by the
+     same distance as the outline's offset. */
+  background: var(--ring-fill);
+  box-shadow: 0 0 0 .3em var(--ring-fill);
+  transition: outline-color .25s ease, background-color .25s ease, box-shadow .25s ease;
 }
-.org:hover { outline-color: var(--rule); }
-.org[aria-pressed="true"], .thinker.is-org .thinker-name { outline-color: var(--ink); }
+.org.is-ringed, .thinker.is-org .thinker-name {
+  --ring-fill: color-mix(in srgb, var(--ink) 14%, transparent);
+  outline-color: var(--ink);
+}
 .org:focus-visible { outline-color: var(--ink-soft); }
 /* The source shrinks with the definition (about two-thirds its size), so on
    phones it stays clearly smaller than the definition. */
@@ -1006,13 +1013,19 @@ var THINKERS = [
 
   // The organisations row on the About entry.
   var orgs = document.getElementById('orgs'), orgButtons = [], picked = -1;
-  function pickOrg(k){
-    picked = k;
-    orgButtons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === k)); });
+  // Hovering an organisation rings its theorists; leaving it restores the
+  // one picked by click or tap (which is how touch screens show them).
+  function ring(k){
+    orgButtons.forEach(function(b, j){ b.classList.toggle('is-ringed', j === k); });
     var members = k < 0 ? [] : ORGS[k].members;
     buttons.forEach(function(b, j){
       if (b.classList.contains('thinker')) b.classList.toggle('is-org', members.indexOf(entries[j].name) >= 0);
     });
+  }
+  function pickOrg(k){
+    picked = k;
+    orgButtons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === k)); });
+    ring(k);
   }
   ORGS.forEach(function(o, k){
     var li = document.createElement('li'), b = document.createElement('button');
@@ -1021,6 +1034,10 @@ var THINKERS = [
     b.textContent = o.name;
     b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function(){ pickOrg(picked === k ? -1 : k); });
+    b.addEventListener('pointerenter', function(e){ if (e.pointerType !== 'touch') ring(k); });
+    b.addEventListener('pointerleave', function(e){ if (e.pointerType !== 'touch') ring(picked); });
+    b.addEventListener('focus', function(){ ring(k); });
+    b.addEventListener('blur', function(){ ring(picked); });
     li.appendChild(b);
     document.getElementById('orgs-list').appendChild(li);
     orgButtons.push(b);
