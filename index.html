@@ -499,7 +499,14 @@ main {
 /* About entry: the research organisations represented, in a row. Picking one
    rings its theorists in the menu with a rounded rectangle; picking it again
    clears them. The same ring marks the organisation that is picked. */
-.orgs { margin: 2.25rem 0 0; }
+/* Rules divide the About entry: description, organisations, counters. */
+.orgs {
+  width: 100%;
+  margin: 1.75rem 0 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--rule);
+  transition: opacity .2s ease, border-color .4s ease;
+}
 .orgs[hidden] { display: none; }
 .orgs-label {
   margin: 0 0 1rem;
@@ -521,7 +528,9 @@ main {
   display: flex;
   justify-content: center;
   gap: 4rem;
-  margin: 2.25rem 0 0;
+  margin: 1.75rem 0 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--rule);
 }
 .stat {
   margin: 0;
