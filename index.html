@@ -1005,7 +1005,6 @@ var THINKERS = [
   {
     name: 'Zak Stein',
     group: 'The Culturalists',
-    numeralsOnly: false,  // the right menu keeps the article names
     quote: true,
     text: 'There are a large number of crises drawing increasing amounts of public attention, such as the ecological, economic, immigration, geopolitical, and energy crises. But there is also <strong>an invisible crisis unfolding within our own minds and cultures</strong> that is getting much less attention. <strong>This is the metacrisis, which has to do with how humans understand themselves and the world. It is a generalised educational crisis involving a set of related psychological dynamics;</strong> systems and societies are in trouble, but it is the psyche—the human dimension—that is in the direst of straits.',
     also: [
@@ -1042,7 +1041,6 @@ var THINKERS = [
   {
     name: 'Jonathan Rowson',
     quote: true,
-    numeralsOnly: false,  // the right menu keeps the article names
     text: 'The metacrisis is the historically specific threat to truth, beauty, and goodness caused by our persistent misunderstanding, misvaluing, and misappropriating of reality. <strong>The metacrisis is the crisis within and between all the world’s major crises,</strong> a root cause that is at once singular and plural, a multi-faceted delusion arising from the spiritual and material exhaustion of modernity that permeates the world’s interrelated challenges and manifests institutionally and culturally to the detriment of life on earth.',
     also: [
       {
@@ -1065,7 +1063,13 @@ var THINKERS = [
     quote: true,
     text: '<strong>The deep and complexly interrelated global crises—ecological, technological, political-economic, ethical, existential, and epistemic—and their underlying network of overlapping root causes.</strong> That is, the metacrisis is an emergent metasystem—a higher-order meta-structure or complex totality, that coheres in such a way that is endowed with irreducible causal powers and taxonomic properties.',
     width: '56rem',
-    source: { title: 'Metatheory for the 21st Century: Critical Realism and Integral Theory in Dialogue', url: 'https://api.pageplace.de/preview/DT0400.9781317423836_A26311112/preview-9781317423836_A26311112.pdf', after: ' (2015), Mervyn Hartwig, Nicholas Hedlund, Roy Bhaskar and Sean Esbjörn-Hargens' }
+    also: [
+      {
+        text: 'Our own preferred term for this complex multiplicity is ‘metacrisis’. This is in part because for us it is not just a polycrisis in the sense that it is multifaceted or there are many interconnected objective or ‘exterior’ crises or wicked problems occurring (e.g., political, economic, and ecological). <strong>These interconnected crises are also situated in a(n) (inter)subjective context of ‘interior’ meaning making (semiosis), construal and response that includes philosophical, scientific, religious, existential, worldview, and psychospiritual dimensions</strong> that are essential to include in an adequate understanding of the complex dynamics in play in order to facilitate more effective responses.',
+        source: { title: 'Metatheory for the 21st Century: Critical Realism and Integral Theory in Dialogue', short: 'Metatheory for the 21st Century', url: 'https://api.pageplace.de/preview/DT0400.9781317423836_A26311112/preview-9781317423836_A26311112.pdf', after: ' (2015), Mervyn Hartwig, Nicholas Hedlund, Roy Bhaskar and Sean Esbjörn-Hargens' }
+      }
+    ],
+    source: { title: 'Metatheory for the 21st Century: Critical Realism and Integral Theory in Dialogue', short: 'Metatheory for the 21st Century', url: 'https://api.pageplace.de/preview/DT0400.9781317423836_A26311112/preview-9781317423836_A26311112.pdf', after: ' (2015), Mervyn Hartwig, Nicholas Hedlund, Roy Bhaskar and Sean Esbjörn-Hargens' }
   }
 ];
 
@@ -1230,11 +1234,9 @@ var THINKERS = [
       clearTimeout(fadeTimer); clearTimeout(cycleTimer);
       panel.classList.remove('is-slow', 'is-cycling');
       versions = versionsOf(e); held = false;
-      // Numerals alone when the entry says so (numeralsOnly: true), or by
-      // default when two definitions share a source; numeralsOnly: false
-      // keeps the titles even then.
-      var titles = versions.map(function(v){ return v.source ? v.source.title : ''; });
-      numeralsOnly = 'numeralsOnly' in e ? !!e.numeralsOnly : titles.some(function(t, k){ return titles.indexOf(t) !== k; });
+      // Article names beside the numerals, unless the entry asks for
+      // numerals alone (numeralsOnly: true).
+      numeralsOnly = !!e.numeralsOnly;
       buildVersions();
       renderVersion(0);
       holdHeight();
