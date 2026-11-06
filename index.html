@@ -25,10 +25,13 @@
 <link id="favicon-png" rel="icon" type="image/png" sizes="32x32" href="favicon-light.png">
 <link id="favicon-svg" rel="icon" type="image/svg+xml" href="favicon-light.svg">
 <script>
-/* Four themes, with the Civilisational Map's palettes: black (the default),
-   white, sepia, blue.
+/* Four themes, with the Civilisational Map's palettes: black, white, sepia,
+   blue. With no saved choice, the device's light/dark setting picks white or
+   black, and the page follows it if it changes.
    The favicon M is black on the light pair, white on the dark pair. */
 var THEMES = ['dark', 'light', 'sepia', 'midnight'];
+var systemDark = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
+function systemTheme(){ return systemDark && !systemDark.matches ? 'light' : 'dark'; }
 function setFavicon(theme){
   var tone = theme === 'dark' || theme === 'midnight' ? 'dark' : 'light';
   document.getElementById('favicon-png').href = 'favicon-' + tone + '.png';
@@ -44,7 +47,7 @@ function setFavicon(theme){
       saved = old === 'dark' ? 'midnight' : old === 'light' ? 'sepia' : null;
     }
   } catch (e) {}
-  var theme = THEMES.indexOf(saved) >= 0 ? saved : THEMES[0];
+  var theme = THEMES.indexOf(saved) >= 0 ? saved : systemTheme();
   document.documentElement.setAttribute('data-theme', theme);
   setFavicon(theme);
 })();
@@ -748,6 +751,19 @@ var Piano = (function(){
   }
 
   btn.addEventListener('click', toggleTheme);
+
+  // No saved choice: follow the device's light/dark setting as it changes.
+  if (systemDark) {
+    var onSystem = function(){
+      var saved = null;
+      try { saved = localStorage.getItem('site-theme'); } catch (e) {}
+      if (THEMES.indexOf(saved) >= 0) return;
+      var t = systemTheme();
+      root.setAttribute('data-theme', t); setFavicon(t); sync();
+    };
+    if (systemDark.addEventListener) systemDark.addEventListener('change', onSystem);
+    else if (systemDark.addListener) systemDark.addListener(onSystem);
+  }
 
   document.addEventListener('keydown', function(e){
     if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
