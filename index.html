@@ -1007,6 +1007,16 @@ var THINKERS = [
     group: 'The Culturalists',
     quote: true,
     text: 'There are a large number of crises drawing increasing amounts of public attention, such as the ecological, economic, immigration, geopolitical, and energy crises. But there is also <strong>an invisible crisis unfolding within our own minds and cultures</strong> that is getting much less attention. <strong>This is the metacrisis, which has to do with how humans understand themselves and the world. It is a generalised educational crisis involving a set of related psychological dynamics;</strong> systems and societies are in trouble, but it is the psyche—the human dimension—that is in the direst of straits.',
+    also: [
+      {
+        text: 'Welcome to the metacrisis. This is a generalised educational crisis in which, despite all the concrete problems faced by society, <strong>the most pressing problems are actually ‘in our heads’ (i.e., in our minds and souls, we are in a crisis of the psyche).</strong>',
+        source: { title: 'Education is the Metacrisis', italic: false, url: 'https://systems-souls-society.com/education-is-the-metacrisis/', after: ', <i>Perspectiva</i> (2022)' }
+      },
+      {
+        text: 'CosmoErotic Humanism is a philosophical movement aimed at reconstructing the collapse of value at the core of global culture. This movement emerges in response to the metacrisis, <strong>understanding existential and catastrophic risks as rooted not only in failures of economics, governments, and technology, but in failed worldviews.</strong>',
+        source: { title: 'First Principles & First Values: Forty-Two Propositions on CosmoErotic Humanism', short: 'First Principles & First Values', url: 'https://www.officeforthefuture.com/sites/officeforthefuture/files/files/2023%2005%2017%20-%20First%20Principles%20and%20first%20values%20of%20evolving%20perennialism_1.pdf', after: ' (2023), David J. Temple (Zak Stein, Ken Wilber and Marc Gafni), <i>Centre for World Philosophy &amp; Religion</i>' }
+      }
+    ],
     source: { title: 'Education is the Metacrisis', italic: false, url: 'https://systems-souls-society.com/education-is-the-metacrisis/', after: ', <i>Perspectiva</i> (2022)' }
   },
   {
@@ -1073,21 +1083,19 @@ var THINKERS = [
     else layout.style.removeProperty('--measure');
     versionButtons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === k)); });
   }
-  // Hold the definition and source at the height of the longest of the
-  // theorist's definitions, so the name and title above stay still as they
-  // cycle.
+  // Hold the panel at the height it has with the longest of the theorist's
+  // definitions, so the name and title stay still as they cycle. The source
+  // stays right beneath the text; any spare room falls below it.
   function holdHeight(){
-    definition.style.minHeight = source.style.minHeight = '';
+    panel.style.minHeight = '';
     if (versions.length < 2) return;
-    var keep = version, hd = 0, hs = 0;
+    var keep = version, h = 0;
     versions.forEach(function(v, k){
       renderVersion(k);
-      hd = Math.max(hd, definition.offsetHeight);
-      hs = Math.max(hs, source.offsetHeight);
+      h = Math.max(h, panel.offsetHeight);
     });
     renderVersion(keep);
-    definition.style.minHeight = hd + 'px';
-    source.style.minHeight = hs + 'px';
+    panel.style.minHeight = h + 'px';
   }
   var resizeTimer;
   window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(holdHeight, 150); });
@@ -1200,7 +1208,10 @@ var THINKERS = [
       clearTimeout(fadeTimer); clearTimeout(cycleTimer);
       panel.classList.remove('is-slow', 'is-cycling');
       versions = versionsOf(e); held = false;
-      numeralsOnly = !!e.numeralsOnly;
+      // Numerals alone when asked, or when two definitions share a source
+      // (the same title twice would read as a mistake).
+      var titles = versions.map(function(v){ return v.source ? v.source.title : ''; });
+      numeralsOnly = !!e.numeralsOnly || titles.some(function(t, k){ return titles.indexOf(t) !== k; });
       buildVersions();
       renderVersion(0);
       holdHeight();
