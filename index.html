@@ -204,7 +204,7 @@ body {
   min-height: 100%;
   display: grid;
   --measure: 50rem;
-  grid-template-columns: minmax(max-content, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, var(--measure)) minmax(max-content, 1fr);
   align-items: center;
   padding: 6rem 1.5rem;
   position: relative;
@@ -412,6 +412,40 @@ main {
 }
 .supertitle, .definition, .source, .orgs { transition: opacity .2s ease; }
 .is-swapping .supertitle, .is-swapping .definition, .is-swapping .source, .is-swapping .orgs { opacity: 0; }
+/* A theorist's definitions cycle with a slower fade-out and fade-in. */
+.is-slow .definition, .is-slow .source { transition-duration: .6s; }
+.is-cycling .definition, .is-cycling .source { opacity: 0; }
+
+/* Numerals menu, right: one numeral per definition when a theorist has more
+   than one. It mirrors the names menu: the vertical rule on its left, a tick
+   from it to each numeral. It keeps its width when empty, so the definition
+   stays put. */
+.versions {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin-block: -6rem;
+  display: flex;
+  flex-direction: column;
+  padding: 6.5rem 1rem 1.5rem 2.5rem;
+  transition: opacity .2s ease;
+}
+.versions.is-empty { visibility: hidden; }
+.is-swapping ~ .versions { opacity: 0; }
+.version-list {
+  margin: auto 0;
+  padding-bottom: 1.25rem;
+  border-left: 1px solid var(--rule);
+}
+.version-list > li { min-width: 3rem; }
+@media (min-width: 901px) {
+  .thinker.version { flex-direction: row-reverse; justify-content: flex-end; text-align: left; }
+  .thinker.version::after { transform-origin: left center; }
+}
 
 /* About entry: the research organisations represented, in a row. Picking one
    rings its theorists in the menu with a rounded rectangle; picking it again
@@ -573,6 +607,19 @@ h1 {
   .thinker[aria-pressed="true"]::after { transform: scaleY(1); }
   .thinker.thinker-group { align-items: center; font-size: 1.05rem; }
   .thinker-group::after { display: none; }
+  .versions {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: stretch;
+    position: static;
+    height: auto;
+    margin-block: -.5rem 0;
+    padding: 0;
+  }
+  .versions.is-empty { display: none; }
+  .version-list { padding-bottom: 0; border-left: 0; }
+  .version-list > li { min-width: 0; }
+  .thinkers { grid-row: 3; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -623,6 +670,9 @@ h1 {
       <ul class="orgs-list" id="orgs-list"></ul>
     </div>
   </main>
+  <nav class="versions is-empty" id="versions" aria-label="Definitions by this theorist">
+    <ol class="thinker-names version-list" id="version-list"></ol>
+  </nav>
   <div class="dominoes page-dominoes" id="page-dominoes" aria-hidden="true"></div>
 </div>
 
@@ -843,6 +893,14 @@ var THINKERS = [
     quote: true,
     text: '‘Metacrisis’ has emerged in recent years as a new concept for understanding 21st century global challenges. Probably its most well-known proponent is Daniel Schmachtenberger… On his way of presenting it, the concept refers to <strong>the existence of structural root causes or ‘generator functions’ of the many catastrophic and existential risks that humanity currently faces</strong>. While this framing may be the most widely known, there’s a wide range of other perspectives in recent metacrisis discussions – and this has led to confusion about what is meant by the term. … <strong>recent metacrisis framings fall into two main kinds, depending on whether they emphasise ‘inner’ psychological or cultural factors or ‘outer’ economic or structural dynamics.</strong> (… these two approaches complement each other, rather than being in conflict.)',
     width: '56rem',
+    // Further definitions by the same theorist go in `also`; they cycle, with
+    // a numeral for each in the menu on the right.
+    also: [
+      {
+        text: 'Central to metacrisis theory is the idea that the main global risks facing humanity have common structural and cultural roots. Catastrophic risks from AI, great power war and environmental damage, among others, are traced back to economic structures and dangerous system dynamics, as well as the cultural and psychological factors supporting them.',
+        source: { title: 'Metacrisis as a Framework for AI Governance', italic: false, url: 'https://forum.effectivealtruism.org/posts/uZHyRMpnKoC24rQDm/metacrisis-as-a-framework-for-ai-governance', after: ' (2025)' }
+      }
+    ],
     source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
   },
   {
@@ -920,6 +978,90 @@ var THINKERS = [
   var source = document.getElementById('source');
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
   var buttons = [], entries = [], current = -1, home = 0, swapTimer;
+  var versionNav = document.getElementById('versions');
+  var versionList = document.getElementById('version-list');
+  var versions = [], version = 0, versionButtons = [], cycleTimer, fadeTimer, paused = false, held = false;
+
+  // A theorist's definitions: the entry's own, then any in `also`.
+  function versionsOf(e){
+    return [e].concat((e.also || []).map(function(v){
+      return { text: v.text, quote: 'quote' in v ? v.quote : e.quote, width: v.width || e.width, source: v.source };
+    }));
+  }
+  function roman(n){
+    var out = '', R = [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']];
+    R.forEach(function(r){ while (n >= r[0]) { out += r[1]; n -= r[0]; } });
+    return out;
+  }
+  function renderVersion(k){
+    var v = versions[k];
+    version = k;
+    definition.innerHTML = render(v);
+    renderSource(v.source);
+    if (v.width) layout.style.setProperty('--measure', v.width);
+    else layout.style.removeProperty('--measure');
+    versionButtons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === k)); });
+  }
+  // Hold the definition and source at the height of the longest of the
+  // theorist's definitions, so the name and title above stay still as they
+  // cycle.
+  function holdHeight(){
+    definition.style.minHeight = source.style.minHeight = '';
+    if (versions.length < 2) return;
+    var keep = version, hd = 0, hs = 0;
+    versions.forEach(function(v, k){
+      renderVersion(k);
+      hd = Math.max(hd, definition.offsetHeight);
+      hs = Math.max(hs, source.offsetHeight);
+    });
+    renderVersion(keep);
+    definition.style.minHeight = hd + 'px';
+    source.style.minHeight = hs + 'px';
+  }
+  var resizeTimer;
+  window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(holdHeight, 150); });
+  function buildVersions(){
+    versionList.textContent = '';
+    versionButtons = [];
+    versionNav.classList.toggle('is-empty', versions.length < 2);
+    if (versions.length < 2) return;
+    versions.forEach(function(v, k){
+      var li = document.createElement('li'), b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'thinker version';
+      b.setAttribute('aria-label', 'Definition ' + (k + 1) + ' of ' + versions.length);
+      b.innerHTML = '<span class="thinker-name" data-name="' + roman(k + 1) + '"><span class="thinker-text">' + roman(k + 1) + '</span></span>';
+      b.addEventListener('click', function(){ held = true; clearTimeout(cycleTimer); if (k !== version) fadeTo(k); });
+      li.appendChild(b);
+      versionList.appendChild(li);
+      versionButtons.push(b);
+    });
+  }
+  // Fade the definition and its source out, swap, fade back in.
+  function fadeTo(k){
+    clearTimeout(fadeTimer);
+    if (reduceMotion && reduceMotion.matches) { renderVersion(k); return schedule(); }
+    panel.classList.add('is-slow', 'is-cycling');
+    fadeTimer = setTimeout(function(){
+      renderVersion(k);
+      panel.classList.remove('is-cycling');
+      fadeTimer = setTimeout(function(){ panel.classList.remove('is-slow'); schedule(); }, 650);
+    }, 600);
+  }
+  // Cycling: each definition stays long enough to be read (about 0.4s a word,
+  // at least 15s). It pauses while the pointer is over the definition or the
+  // numerals, and stops once a numeral is picked. No cycling with reduced
+  // motion.
+  function schedule(){
+    clearTimeout(cycleTimer);
+    if (versions.length < 2 || paused || held || (reduceMotion && reduceMotion.matches)) return;
+    var words = definition.textContent.split(/\s+/).length;
+    cycleTimer = setTimeout(function(){ fadeTo((version + 1) % versions.length); }, Math.max(15000, words * 400));
+  }
+  [panel, versionNav].forEach(function(el){
+    el.addEventListener('pointerenter', function(e){ if (e.pointerType !== 'touch') { paused = true; clearTimeout(cycleTimer); } });
+    el.addEventListener('pointerleave', function(e){ if (e.pointerType !== 'touch') { paused = false; schedule(); } });
+  });
 
   function render(t){
     // Keep the last two words together so one never sits alone on a line.
@@ -971,17 +1113,20 @@ var THINKERS = [
     buttons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === i)); });
     function apply(){
       supertitle.textContent = e.name;
-      definition.innerHTML = render(e);
-      renderSource(e.source);
+      clearTimeout(fadeTimer); clearTimeout(cycleTimer);
+      panel.classList.remove('is-slow', 'is-cycling');
+      versions = versionsOf(e); held = false;
+      buildVersions();
+      renderVersion(0);
+      holdHeight();
       orgs.hidden = i !== about;
       if (i !== about) pickOrg(-1);
       panel.classList.toggle('is-quote', i !== home);
-      if (e.width) layout.style.setProperty('--measure', e.width);
-      else layout.style.removeProperty('--measure');
       // On phones the menu sits below the definition: after a pick from it,
       // bring the start of the new definition back into view.
       if (!instant && panel.getBoundingClientRect().top < 0) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       panel.classList.remove('is-swapping');
+      schedule();
     }
     clearTimeout(swapTimer);
     if (instant || (reduceMotion && reduceMotion.matches)) return apply();
