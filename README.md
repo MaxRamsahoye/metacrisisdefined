@@ -1,2 +1,2 @@
 # metacrisisdefined
-https://maxramsahoye.github.io/metacrisisdefined/
+https://maxramsahoye.github.io/themetacrisisdefined
