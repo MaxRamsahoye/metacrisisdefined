@@ -1005,6 +1005,7 @@ var THINKERS = [
   {
     name: 'Zak Stein',
     group: 'The Culturalists',
+    numeralsOnly: false,  // the right menu keeps the article names
     quote: true,
     text: 'There are a large number of crises drawing increasing amounts of public attention, such as the ecological, economic, immigration, geopolitical, and energy crises. But there is also <strong>an invisible crisis unfolding within our own minds and cultures</strong> that is getting much less attention. <strong>This is the metacrisis, which has to do with how humans understand themselves and the world. It is a generalised educational crisis involving a set of related psychological dynamics;</strong> systems and societies are in trouble, but it is the psyche—the human dimension—that is in the direst of straits.',
     also: [
@@ -1214,10 +1215,11 @@ var THINKERS = [
       clearTimeout(fadeTimer); clearTimeout(cycleTimer);
       panel.classList.remove('is-slow', 'is-cycling');
       versions = versionsOf(e); held = false;
-      // Numerals alone when asked, or when two definitions share a source
-      // (the same title twice would read as a mistake).
+      // Numerals alone when the entry says so (numeralsOnly: true), or by
+      // default when two definitions share a source; numeralsOnly: false
+      // keeps the titles even then.
       var titles = versions.map(function(v){ return v.source ? v.source.title : ''; });
-      numeralsOnly = !!e.numeralsOnly || titles.some(function(t, k){ return titles.indexOf(t) !== k; });
+      numeralsOnly = 'numeralsOnly' in e ? !!e.numeralsOnly : titles.some(function(t, k){ return titles.indexOf(t) !== k; });
       buildVersions();
       renderVersion(0);
       holdHeight();
