@@ -406,8 +406,48 @@ main {
   text-transform: uppercase;
   color: var(--ink);
 }
-.supertitle, .definition, .source { transition: opacity .2s ease; }
-.is-swapping .supertitle, .is-swapping .definition, .is-swapping .source { opacity: 0; }
+.supertitle, .definition, .source, .orgs { transition: opacity .2s ease; }
+.is-swapping .supertitle, .is-swapping .definition, .is-swapping .source, .is-swapping .orgs { opacity: 0; }
+
+/* About entry: the research organisations represented, in a row. Picking one
+   rings its theorists in the menu with a rounded rectangle; picking it again
+   clears them. The same ring marks the organisation that is picked. */
+.orgs { margin: 2.25rem 0 0; }
+.orgs[hidden] { display: none; }
+.orgs-label {
+  margin: 0 0 .9rem;
+  font-size: clamp(.875rem, 1.75vw, 1.1rem);
+  font-style: italic;
+}
+.orgs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .75rem 1.75rem;
+}
+.org {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: clamp(.95rem, 1.85vw, 1.15rem);
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: var(--cursor-link);
+}
+.org, .thinker-name {
+  border-radius: .4em;
+  outline: 1px solid transparent;
+  outline-offset: .3em;
+  transition: outline-color .25s ease;
+}
+.org:hover { outline-color: var(--rule); }
+.org[aria-pressed="true"], .thinker.is-org .thinker-name { outline-color: var(--ink); }
+.org:focus-visible { outline-color: var(--ink-soft); }
 /* The source shrinks with the definition (about two-thirds its size), so on
    phones it stays clearly smaller than the definition. */
 .source {
@@ -560,6 +600,10 @@ h1 {
     <h1>The Metacrisis</h1>
     <p class="definition" id="definition"><strong><a href="https://maxramsahoye.github.io/civilisationtheory/#metacrisis" target="_blank" rel="noopener">The Metacrisis</a></strong> is (a conceptual frame for capturing) <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current <strong><a href="https://globalmaximum.substack.com/p/the-life-world-system-on-the-universal" target="_blank" rel="noopener"><span class="nowrap">life-world-system</span></a></strong>, which is now emergently posing an existential risk to&nbsp;humanity.</p>
     <p class="source" id="source"></p>
+    <div class="orgs" id="orgs" hidden>
+      <p class="orgs-label">Research organisations represented</p>
+      <ul class="orgs-list" id="orgs-list"></ul>
+    </div>
   </main>
   <div class="dominoes page-dominoes" id="page-dominoes" aria-hidden="true"></div>
 </div>
@@ -747,6 +791,15 @@ var ABOUT = {
   text: '<strong><a href="https://maxramsahoye.github.io/metacrisisdefined/"><i>/metacrisisdefined</i></a></strong> gathers <strong>definitions of the metacrisis from the theorists who have employed the concept</strong>, so that they can be read side by side. The term is used in many ways, and its meaning is still contested. Placed together, the definitions show where they converge and where they part: some trace the metacrisis to the <i>external</i> structures of civilisation, some to its <i>inner</i> life, and some hold the two together. Select a name to read a definition in its author’s own words.'
 };
 
+// Research organisations listed on the About entry, with their theorists
+// (named exactly as in THINKERS).
+var ORGS = [
+  { name: 'Civilization Research Institute', members: ['Daniel Schmachtenberger', 'Zak Stein', 'Joshua Williams', 'Chris Eddy'] },
+  { name: 'Institute of Applied Meta-theory', members: ['Nicholas Hedlund'] },
+  { name: 'Perspectiva', members: ['Jonathan Rowson'] },
+  { name: 'Life Itself', members: ['Rufus Pollock'] }
+];
+
 var THINKERS = [
   {
     name: 'Max Ramsahoye',
@@ -889,6 +942,8 @@ var THINKERS = [
       supertitle.textContent = e.name;
       definition.innerHTML = render(e);
       renderSource(e.source);
+      orgs.hidden = i !== about;
+      if (i !== about) pickOrg(-1);
       panel.classList.toggle('is-quote', i !== home);
       if (e.width) layout.style.setProperty('--measure', e.width);
       else layout.style.removeProperty('--measure');
@@ -948,6 +1003,28 @@ var THINKERS = [
   // The project's entry: the i button toggles it; "a project" opens it.
   var info = document.getElementById('info-toggle');
   var about = entries.length;
+
+  // The organisations row on the About entry.
+  var orgs = document.getElementById('orgs'), orgButtons = [], picked = -1;
+  function pickOrg(k){
+    picked = k;
+    orgButtons.forEach(function(b, j){ b.setAttribute('aria-pressed', String(j === k)); });
+    var members = k < 0 ? [] : ORGS[k].members;
+    buttons.forEach(function(b, j){
+      if (b.classList.contains('thinker')) b.classList.toggle('is-org', members.indexOf(entries[j].name) >= 0);
+    });
+  }
+  ORGS.forEach(function(o, k){
+    var li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'org';
+    b.textContent = o.name;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function(){ pickOrg(picked === k ? -1 : k); });
+    li.appendChild(b);
+    document.getElementById('orgs-list').appendChild(li);
+    orgButtons.push(b);
+  });
   entries.push(ABOUT);
   buttons.push(info);
   info.addEventListener('click', function(){ show(current === about ? home : about); });
