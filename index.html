@@ -210,6 +210,24 @@ body {
   position: relative;
 }
 
+/* The epigraph sits beside the wordmark, sharing its baseline; on phones it
+   moves beneath the credit. */
+.masthead-line {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+.epigraph {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+@media (max-width: 900px) {
+  .masthead-line { display: contents; }
+  .masthead { display: flex; flex-direction: column; }
+  .epigraph { order: 1; margin-top: .5rem; max-width: calc(100vw - 2.5rem); text-wrap: balance; }
+}
 .credit {
   margin: .4rem 0 0;
   font-size: 1.15rem;
@@ -588,7 +606,7 @@ h1 {
     grid-template-columns: minmax(0, 1fr);
     align-content: center;
     row-gap: 2.75rem;
-    padding: 7.5rem 1.25rem 3rem;
+    padding: 12.5rem 1.25rem 3rem;
   }
   .masthead { left: 1.25rem; }
   /* On phones the definition comes first and the menu strip follows it. */
@@ -677,7 +695,10 @@ h1 {
 </button>
 
 <header class="masthead">
-  <a class="wordmark" href="./">themetacrisisdefined</a>
+  <div class="masthead-line">
+    <a class="wordmark" href="./">themetacrisisdefined</a>
+    <p class="epigraph"><span class="qm qm-open" aria-hidden="true">“</span>We live in the interregnum between worlds, between&nbsp;paradigms<span class="qm qm-close" aria-hidden="true">”</span></p>
+  </div>
   <p class="credit"><a href="#about" id="about-link">a project</a> by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
 </header>
 
