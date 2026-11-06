@@ -926,7 +926,7 @@ var THINKERS = [
         source: { title: 'Metacrisis as a Framework for AI Governance', italic: false, url: 'https://forum.effectivealtruism.org/posts/uZHyRMpnKoC24rQDm/metacrisis-as-a-framework-for-ai-governance', after: ' (2025)' }
       }
     ],
-    source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
+    source: { title: 'Metacrisis: an Overview—key perspectives to date, and some open questions', short: 'Metacrisis: an Overview', italic: false, url: 'https://thewiderangle.substack.com/p/metacrisis-an-overview', after: ', <i>The Wider Angle</i> (2025)' }
   },
   {
     name: 'Terry Patten',
@@ -1059,8 +1059,10 @@ var THINKERS = [
       num.className = 'version-num';
       num.textContent = roman(k + 1);
       title.className = 'version-title';
-      title.textContent = v.source ? v.source.title : '';
-      if (v.source) b.title = v.source.title;
+      // A source's `short` title, if it has one, stands in for the full title.
+      var t = v.source ? v.source.short || v.source.title : '';
+      title.textContent = t;
+      if (t) b.title = t;
       label.appendChild(num);
       label.appendChild(title);
       b.appendChild(label);
