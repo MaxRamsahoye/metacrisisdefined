@@ -910,9 +910,11 @@ var THINKERS = [
   {
     name: 'Max Ramsahoye',
     group: 'The Holists',
+    numeralsOnly: true,  // the right menu shows numerals without source titles
     text: '<strong><a href="https://maxramsahoye.github.io/civilisationtheory/#metacrisis" target="_blank" rel="noopener">The Metacrisis</a></strong> is (a conceptual frame for capturing) <strong>civilisation’s total <a href="https://maxramsahoye.github.io/civilisationtheory/#problem-complex" target="_blank" rel="noopener"><i>problem complex</i></a>, the <a href="https://maxramsahoye.github.io/civilisationtheory/#generative-dynamics" target="_blank" rel="noopener"><i>generative dynamics</i></a> that (re)produce it and the <a href="https://maxramsahoye.github.io/civilisationtheory/#attractor-states" target="_blank" rel="noopener"><i>attractor states</i></a> it vectors towards</strong>. It marks the terminal phase in the developmental process of the current <strong><a href="https://globalmaximum.substack.com/p/the-life-world-system-on-the-universal" target="_blank" rel="noopener"><span class="nowrap">life-world-system</span></a></strong>, which is now emergently posing an existential risk to humanity.',
     also: [
       {
+        source: { title: 'themetacrisisdefined', url: 'https://maxramsahoye.github.io/themetacrisisdefined/' },
         text: '‘The Metacrisis’ is an emerging frame for capturing the problems of civilisation in totality, the underlying dynamics that give rise to them and the narrow set of future trajectories ahead. The causal thesis of the metacrisis is that global crises and catastrophic risk emerge from the prevailing civilisational paradigm: the interaction of its operative evolutionary game-theory, political economy and cultural psychology with advanced technology. Whilst the metacrisis has existed in proto-form throughout history, it is expressed most acutely in our current era of late-stage modernity when it has become existential.'
       }
     ],
@@ -1056,6 +1058,7 @@ var THINKERS = [
   }
   var resizeTimer;
   window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(holdHeight, 150); });
+  var numeralsOnly = false;
   function buildVersions(){
     versionList.textContent = '';
     versionButtons = [];
@@ -1071,7 +1074,7 @@ var THINKERS = [
       num.textContent = roman(k + 1);
       title.className = 'version-title';
       // A source's `short` title, if it has one, stands in for the full title.
-      var t = v.source ? v.source.short || v.source.title : '';
+      var t = v.source && !numeralsOnly ? v.source.short || v.source.title : '';
       title.textContent = t;
       if (t) b.title = t;
       label.appendChild(num);
@@ -1164,6 +1167,7 @@ var THINKERS = [
       clearTimeout(fadeTimer); clearTimeout(cycleTimer);
       panel.classList.remove('is-slow', 'is-cycling');
       versions = versionsOf(e); held = false;
+      numeralsOnly = !!e.numeralsOnly;
       buildVersions();
       renderVersion(0);
       holdHeight();
