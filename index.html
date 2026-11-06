@@ -515,6 +515,29 @@ main {
   justify-content: center;
   gap: .75rem 1.75rem;
 }
+/* Counters beneath the organisations: theorists and definitions, counted
+   from the data, rising from zero when the About entry opens. */
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin: 2.25rem 0 0;
+}
+.stat {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .4rem;
+}
+.stat-num {
+  font-size: clamp(2.75rem, 5.5vw, 3.75rem);
+  line-height: 1;
+}
+.stat-label {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-style: italic;
+}
 .org {
   padding: 0;
   border: 0;
@@ -721,6 +744,10 @@ h1 {
     <div class="orgs" id="orgs" hidden>
       <p class="orgs-label">Research organisations represented</p>
       <ul class="orgs-list" id="orgs-list"></ul>
+      <div class="stats">
+        <p class="stat"><span class="stat-num" id="stat-theorists">0</span><span class="stat-label">Theorists</span></p>
+        <p class="stat"><span class="stat-num" id="stat-definitions">0</span><span class="stat-label">Definitions</span></p>
+      </div>
     </div>
   </main>
   <nav class="versions is-empty" id="versions" aria-label="Definitions by this theorist">
@@ -1245,6 +1272,7 @@ var THINKERS = [
       renderVersion(0);
       holdHeight();
       orgs.hidden = i !== about;
+      if (i === about) countUp();
       if (i !== about) pickOrg(-1);
       panel.classList.toggle('is-quote', i !== home);
       // On phones the menu sits below the definition: after a pick from it,
@@ -1307,6 +1335,29 @@ var THINKERS = [
 
   // The organisations row on the About entry.
   var orgs = document.getElementById('orgs'), orgButtons = [], picked = -1;
+
+  // The counters: every theorist, and every definition (each theorist's own
+  // plus any in `also`).
+  var TOTALS = [
+    [document.getElementById('stat-theorists'), THINKERS.length],
+    [document.getElementById('stat-definitions'), THINKERS.reduce(function(n, t){ return n + 1 + (t.also ? t.also.length : 0); }, 0)]
+  ];
+  var countFrame;
+  function countUp(){
+    cancelAnimationFrame(countFrame);
+    if (reduceMotion && reduceMotion.matches) {
+      TOTALS.forEach(function(c){ c[0].textContent = c[1]; });
+      return;
+    }
+    var start = null, DURATION = 1200;
+    function step(now){
+      if (start === null) start = now;
+      var t = Math.min(1, (now - start) / DURATION), ease = 1 - Math.pow(1 - t, 3);
+      TOTALS.forEach(function(c){ c[0].textContent = Math.round(c[1] * ease); });
+      if (t < 1) countFrame = requestAnimationFrame(step);
+    }
+    countFrame = requestAnimationFrame(step);
+  }
   // Hovering an organisation rings its theorists; leaving it restores the
   // one picked by click or tap (which is how touch screens show them).
   function ring(k){
