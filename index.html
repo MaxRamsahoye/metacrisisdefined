@@ -210,23 +210,32 @@ body {
   position: relative;
 }
 
-/* The epigraph sits beside the wordmark, sharing its baseline; on phones it
-   moves beneath the credit. */
-.masthead-line {
-  display: flex;
-  align-items: baseline;
-  gap: 1.5rem;
-}
+/* The epigraph: italic, centred at the top of the page, level with the
+   wordmark. Where the window is too narrow to centre it clear of the
+   wordmark, it is centred in the space between the wordmark and the icons;
+   on phones it sits beneath the credit. */
 .epigraph {
+  position: absolute;
+  z-index: 1;
+  top: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0;
+  padding-top: .325rem;
   font-size: 1.15rem;
-  line-height: 1.4;
+  font-style: italic;
+  line-height: 2.5rem;
+  white-space: nowrap;
+  text-align: center;
   color: var(--ink);
 }
+/* Italic leans into the opening mark: give it more room. */
+.epigraph .qm-open { margin-right: .22em; }
+@media (min-width: 901px) and (max-width: 1159px) {
+  .epigraph { left: 20.5rem; right: 7rem; transform: none; white-space: normal; text-wrap: balance; line-height: 1.4; padding-top: .8rem; }
+}
 @media (max-width: 900px) {
-  .masthead-line { display: contents; }
-  .masthead { display: flex; flex-direction: column; }
-  .epigraph { order: 1; margin-top: .5rem; max-width: calc(100vw - 2.5rem); text-wrap: balance; }
+  .epigraph { top: 6.6rem; left: 1.25rem; right: 1.25rem; transform: none; white-space: normal; text-wrap: balance; line-height: 1.4; padding-top: 0; }
 }
 .credit {
   margin: .4rem 0 0;
@@ -695,12 +704,10 @@ h1 {
 </button>
 
 <header class="masthead">
-  <div class="masthead-line">
-    <a class="wordmark" href="./">themetacrisisdefined</a>
-    <p class="epigraph"><span class="qm qm-open" aria-hidden="true">“</span>We live in the interregnum between worlds, between&nbsp;paradigms<span class="qm qm-close" aria-hidden="true">”</span></p>
-  </div>
+  <a class="wordmark" href="./">themetacrisisdefined</a>
   <p class="credit"><a href="#about" id="about-link">a project</a> by <a href="https://maxramsahoye.github.io/max/" target="_blank" rel="noopener">Max Ramsahoye</a></p>
 </header>
+<p class="epigraph"><span class="qm qm-open" aria-hidden="true">“</span>We live in the interregnum between worlds, between&nbsp;paradigms<span class="qm qm-close" aria-hidden="true">”</span></p>
 
 <div class="layout">
   <nav class="thinkers" aria-label="Definitions by thinker">
@@ -938,7 +945,7 @@ var THINKERS = [
       {
         source: { title: 'themetacrisisdefined', url: 'https://maxramsahoye.github.io/themetacrisisdefined/' },
         width: '52rem',
-        text: '<strong>‘The Metacrisis’</strong> is (a conceptual frame for capturing) <strong>the problems of civilisation in totality, the underlying dynamics that give rise to them and the narrow set of future trajectories ahead.</strong> The causal thesis of the metacrisis is that <strong>global crises and catastrophic risk emerge from the prevailing civilisational paradigm:</strong> the interaction of its operative evolutionary game-theory, political economy and cultural psychology with advanced technology. Whilst the metacrisis has existed in proto-form throughout history, <strong>it is expressed most acutely in our current era of late-stage modernity when it has become existential.</strong>'
+        text: '<strong>‘The Metacrisis’</strong> is (a conceptual frame for capturing) <strong>the problems of civilisation in totality, the underlying dynamics that give rise to them and the narrow set of future trajectories ahead.</strong> The causal thesis of the metacrisis is that <strong>global crises and catastrophic risk emerge from the prevailing civilisational paradigm:</strong> the interaction of its operative evolutionary game-theory, political economy and cultural psychology with advanced technology. Whilst the metacrisis has existed in proto-form throughout history, <strong>it is expressed most acutely in our current era of late-stage modernity where it has become existential.</strong>'
       }
     ],
     source: { title: 'themetacrisisdefined', url: 'https://maxramsahoye.github.io/themetacrisisdefined/' }
